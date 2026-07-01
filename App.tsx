@@ -13,6 +13,7 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { MeshProvider } from './src/mesh/MeshContext';
 import RootNavigator from './src/navigation/AppNavigator';
+import { NavigationContainer } from '@react-navigation/native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,7 +38,9 @@ export default function App() {
   return (
     <MeshProvider>
       <StatusBar style="light" />
-      <RootNavigator />
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
     </MeshProvider>
   );
 }
