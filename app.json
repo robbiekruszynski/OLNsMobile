@@ -28,9 +28,7 @@
     "android": {
       "icon": "./assets/OLNs_app_logo.png",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png",
+        "foregroundImage": "./assets/OLNs_app_logo.png",
         "backgroundColor": "#0E1117"
       },
       "package": "com.olnsmobile.app",
