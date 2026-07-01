@@ -12,7 +12,7 @@ import {
 } from '@expo-google-fonts/oxanium';
 import * as SplashScreen from 'expo-splash-screen';
 import { MeshProvider } from './src/mesh/MeshContext';
-import { AppNavigator } from './src/navigation/AppNavigator';
+import RootNavigator from './src/navigation/AppNavigator';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,7 +37,7 @@ export default function App() {
   return (
     <MeshProvider>
       <StatusBar style="light" />
-      <AppNavigator />
+      <RootNavigator />
     </MeshProvider>
   );
 }

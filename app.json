@@ -4,14 +4,15 @@
     "slug": "olnsmobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/OLNs_app_logo.png",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/OLNsLogo.png",
       "resizeMode": "contain",
       "backgroundColor": "#0E1117"
     },
     "ios": {
+      "icon": "./assets/OLNs_app_logo.png",
       "bundleIdentifier": "com.olnsmobile.app",
       "supportsTablet": false,
       "infoPlist": {
@@ -25,6 +26,7 @@
       }
     },
     "android": {
+      "icon": "./assets/OLNs_app_logo.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
@@ -53,7 +55,8 @@
           ]
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-splash-screen"
     ]
   }
 }
