@@ -11,7 +11,7 @@ Built with Expo SDK 56, React Native 0.85.3, and
 You write a note, hit broadcast, and it goes out as a BLE service
 (`offline-notes.v1`). Phones in range discover it, pull the full body,
 save it locally, and relay it with an incremented hop count. The
-original author can walk away — the note keeps moving through whoever
+original author can walk away, the note keeps moving through whoever
 is still carrying it.
 
 Use cases are whatever needs infra-free comms: disaster response,
