@@ -102,13 +102,11 @@ interface DetailRowProps {
 
 function DetailRow({ label, value, valueColor = colors.textPrimary }: DetailRowProps) {
   return (
-    <>
-      <View style={styles.detailRow}>
-        <Text style={styles.detailLabel}>{label}</Text>
-        <Text style={[styles.detailValue, { color: valueColor }]}>{value}</Text>
-      </View>
+    <View style={styles.detailRowBlock}>
+      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={[styles.detailValue, { color: valueColor }]}>{value}</Text>
       <View style={styles.detailDivider} />
-    </>
+    </View>
   );
 }
 
@@ -240,12 +238,9 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
       </TouchableOpacity>
 
       {showDetail && (
-        <Animated.View
-          style={[styles.detailOverlay, { opacity: overlayOpacity }]}>
-          <TouchableOpacity
-            style={styles.detailOverlayTouchable}
-            activeOpacity={1}
-            onPress={closeDetail}>
+        <View style={styles.detailOverlay}>
+          <Animated.View
+            style={[styles.detailOverlayContent, { opacity: overlayOpacity }]}>
             <View style={styles.detailHeader}>
               <Text
                 style={[styles.detailHeaderTitle, { color: typeColor }]}>
@@ -277,7 +272,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
                 value={getHopsLabel(note.hopOrigin)}
                 valueColor={getHopsColor(note.hopOrigin)}
               />
-              <View style={styles.detailRow}>
+              <View style={styles.detailRowBlock}>
                 <Text style={styles.detailLabel}>STATUS</Text>
                 <Text
                   style={[
@@ -294,8 +289,8 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
             <Text style={styles.detailFooter}>
               ANONYMOUS · MESH RELAY · NO INFRASTRUCTURE
             </Text>
-          </TouchableOpacity>
-        </Animated.View>
+          </Animated.View>
+        </View>
       )}
     </View>
   );
@@ -385,12 +380,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(14, 17, 23, 0.96)',
+    backgroundColor: colors.surface,
     borderRadius: 6,
     padding: 14,
     zIndex: 10,
+    elevation: 20,
   },
-  detailOverlayTouchable: {
+  detailOverlayContent: {
     flex: 1,
     justifyContent: 'space-between',
   },
@@ -398,6 +394,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 12,
   },
   detailHeaderTitle: {
     fontFamily: fonts.bold,
@@ -413,13 +410,10 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   detailRows: {
-    flex: 1,
-    justifyContent: 'center',
+    flexGrow: 1,
+    gap: 4,
   },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  detailRowBlock: {
     paddingVertical: 8,
   },
   detailLabel: {
@@ -427,14 +421,12 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 2,
     color: colors.textMeta,
+    marginBottom: 4,
   },
   detailValue: {
     fontFamily: fonts.bold,
     fontSize: 11,
     color: colors.textPrimary,
-    textAlign: 'right',
-    flex: 1,
-    marginLeft: 12,
   },
   detailDivider: {
     height: 1,
