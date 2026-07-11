@@ -163,20 +163,26 @@ function noteFromDiscovery(
   capabilities: Record<string, string>,
   body: string,
 ): Note {
+  const encrypted = capabilities.encrypted === 'true';
+
   return {
     noteId: capabilities.noteId,
     type: capabilities.type as NoteType,
     title: capabilities.title,
-    body,
-    preview: capabilities.preview,
+    body: encrypted ? '' : body,
+    preview: capabilities.preview ?? '',
     authorId: capabilities.authorId,
     timestamp: capabilities.timestamp,
     hopOrigin: Number(capabilities.hopOrigin),
+    encrypted,
+    cipherText: encrypted ? capabilities.cipherText : undefined,
+    salt: encrypted ? capabilities.salt : undefined,
+    nonce: encrypted ? capabilities.nonce : undefined,
   };
 }
 
 function noteCapabilities(note: Note): Record<string, string> {
-  return {
+  const capabilities: Record<string, string> = {
     noteId: note.noteId,
     type: note.type,
     title: note.title,
@@ -184,7 +190,22 @@ function noteCapabilities(note: Note): Record<string, string> {
     authorId: note.authorId,
     timestamp: note.timestamp,
     hopOrigin: String(note.hopOrigin),
+    encrypted: note.encrypted ? 'true' : 'false',
   };
+
+  if (note.encrypted) {
+    if (note.cipherText) {
+      capabilities.cipherText = note.cipherText;
+    }
+    if (note.salt) {
+      capabilities.salt = note.salt;
+    }
+    if (note.nonce) {
+      capabilities.nonce = note.nonce;
+    }
+  }
+
+  return capabilities;
 }
 
 function randomRelayDelay(): Promise<void> {
@@ -305,7 +326,7 @@ export function MeshProvider({ children }: { children: ReactNode }) {
             event.sender,
             event.service_id,
             'ok',
-            JSON.stringify({ body: note.body }),
+            JSON.stringify({ body: note.encrypted ? '' : note.body }),
           );
         },
       );
@@ -423,12 +444,13 @@ export function MeshProvider({ children }: { children: ReactNode }) {
             SERVICE_REQUEST_TIMEOUT_MS,
           );
           const parsed = JSON.parse(responseBody) as { body?: string };
+          const isEncrypted = capabilities.encrypted === 'true';
 
-          if (!parsed.body) {
+          if (!isEncrypted && !parsed.body) {
             continue;
           }
 
-          const note = noteFromDiscovery(capabilities, parsed.body);
+          const note = noteFromDiscovery(capabilities, parsed.body ?? '');
           await saveNote(note);
           seenNoteIds.add(note.noteId);
 

@@ -17,11 +17,13 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getOrCreateUserId } from '../identity/getOrCreateUserId';
+import { encryptNoteContent } from '../crypto/noteEncryption';
 import { useMesh } from '../mesh/MeshContext';
 import type { RootTabParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
 import type { Note, NoteType } from '../types/Note';
+import { ENCRYPTED_NOTE_TITLE } from '../types/Note';
 
 const NOTE_TYPES = [
   { type: 'emergency' as NoteType, label: 'EMERGENCY', color: '#E5433D' },
@@ -43,6 +45,9 @@ export default function ComposeScreen() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [encryptEnabled, setEncryptEnabled] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [successVisible, setSuccessVisible] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
   const [successTypeColor, setSuccessTypeColor] = useState(
@@ -62,8 +67,16 @@ export default function ComposeScreen() {
   const selectedType = NOTE_TYPES[selectedIndex];
   const currentTypeColor = selectedType.color;
 
+  const passwordsFilled =
+    password.length > 0 && confirmPassword.length > 0;
+  const passwordsMatch = password === confirmPassword;
+  const encryptionReady = !encryptEnabled || (passwordsFilled && passwordsMatch);
+
   const canBroadcast =
-    title.trim().length > 0 && body.trim().length > 0 && !isBroadcasting;
+    title.trim().length > 0 &&
+    body.trim().length > 0 &&
+    !isBroadcasting &&
+    encryptionReady;
 
   selectedIndexRef.current = selectedIndex;
 
@@ -172,6 +185,9 @@ export default function ComposeScreen() {
       setSuccessVisible(false);
       setTitle('');
       setBody('');
+      setEncryptEnabled(false);
+      setPassword('');
+      setConfirmPassword('');
       setSelectedIndex(DEFAULT_TYPE_INDEX);
       navigation.navigate('Feed');
     });
@@ -189,19 +205,62 @@ export default function ComposeScreen() {
 
     try {
       const authorId = await getOrCreateUserId();
+      const trimmedTitle = title.trim();
       const trimmedBody = body.trim();
       const typeColor = selectedType.color;
+      const noteId = Crypto.randomUUID();
+      const timestamp = new Date().toISOString();
 
-      const note: Note = {
-        noteId: Crypto.randomUUID(),
-        type: selectedType.type,
-        title: title.trim(),
-        body: trimmedBody,
-        preview: trimmedBody.slice(0, 100),
-        authorId,
-        timestamp: new Date().toISOString(),
-        hopOrigin: 0,
-      };
+      let note: Note;
+
+      if (encryptEnabled) {
+        const broadcastPassword = password;
+        const { cipherText, salt, nonce } = encryptNoteContent(
+          { title: trimmedTitle, body: trimmedBody },
+          broadcastPassword,
+        );
+
+        setPassword('');
+        setConfirmPassword('');
+
+        note = {
+          noteId,
+          type: selectedType.type,
+          title: ENCRYPTED_NOTE_TITLE,
+          body: '',
+          preview: '',
+          authorId,
+          timestamp,
+          hopOrigin: 0,
+          encrypted: true,
+          cipherText,
+          salt,
+          nonce,
+        };
+
+        if (__DEV__) {
+          console.log('[OLNs] broadcasting encrypted note', {
+            noteId,
+            type: note.type,
+            title: note.title,
+            body: note.body,
+            encrypted: note.encrypted,
+            hasCipherText: Boolean(note.cipherText),
+          });
+        }
+      } else {
+        note = {
+          noteId,
+          type: selectedType.type,
+          title: trimmedTitle,
+          body: trimmedBody,
+          preview: trimmedBody.slice(0, 100),
+          authorId,
+          timestamp,
+          hopOrigin: 0,
+          encrypted: false,
+        };
+      }
 
       await broadcastNote(note);
       showSuccessFlash(typeColor);
@@ -335,6 +394,68 @@ export default function ComposeScreen() {
             {errorVisible && (
               <Text style={styles.errorMessage}>BROADCAST FAILED</Text>
             )}
+
+            <View style={styles.encryptSection}>
+              <Pressable
+                onPress={() => {
+                  setEncryptEnabled(current => !current);
+                  setPassword('');
+                  setConfirmPassword('');
+                }}
+                style={styles.encryptToggleRow}>
+                <View
+                  style={[
+                    styles.encryptToggle,
+                    encryptEnabled && {
+                      backgroundColor: `${currentTypeColor}33`,
+                      borderColor: currentTypeColor,
+                    },
+                  ]}>
+                  <View
+                    style={[
+                      styles.encryptToggleKnob,
+                      encryptEnabled && {
+                        alignSelf: 'flex-end',
+                        backgroundColor: currentTypeColor,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.encryptToggleLabel}>
+                  ENCRYPT THIS NOTE WITH A PASSWORD
+                </Text>
+              </Pressable>
+
+              {encryptEnabled && (
+                <View style={styles.passwordFields}>
+                  <TextInput
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="PASSWORD"
+                    placeholderTextColor={colors.textMeta}
+                    style={styles.passwordInput}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  <TextInput
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="CONFIRM PASSWORD"
+                    placeholderTextColor={colors.textMeta}
+                    style={styles.passwordInput}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  {passwordsFilled && !passwordsMatch && (
+                    <Text style={styles.passwordError}>
+                      PASSWORDS DO NOT MATCH
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
           </View>
 
           <View
@@ -538,5 +659,59 @@ const styles = StyleSheet.create({
     color: colors.error,
     textAlign: 'center',
     marginTop: 16,
+  },
+  encryptSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  encryptToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  encryptToggle: {
+    width: 40,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 2,
+    justifyContent: 'center',
+  },
+  encryptToggleKnob: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: colors.textMeta,
+  },
+  encryptToggleLabel: {
+    flex: 1,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: colors.textSecondary,
+  },
+  passwordFields: {
+    marginTop: 12,
+    gap: 8,
+  },
+  passwordInput: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  passwordError: {
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: colors.error,
+    textAlign: 'center',
   },
 });

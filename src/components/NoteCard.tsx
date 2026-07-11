@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 
+import { decryptNoteContent } from '../crypto/noteEncryption';
 import { MAX_HOPS } from '../mesh/MeshContext';
 import { colors, getNoteTypeColor } from '../theme/colors';
 import { fonts } from '../theme/typography';
 import type { Note } from '../types/Note';
+import { ENCRYPTED_NOTE_TITLE } from '../types/Note';
 
 interface NoteCardProps {
   note: Note;
@@ -112,10 +116,27 @@ function DetailRow({ label, value, valueColor = colors.textPrimary }: DetailRowP
 
 export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
   const [showDetail, setShowDetail] = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [unlockPassword, setUnlockPassword] = useState('');
+  const [unlockError, setUnlockError] = useState(false);
+  const [decryptedContent, setDecryptedContent] = useState<{
+    title: string;
+    body: string;
+  } | null>(null);
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   const autoDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const previewSuffix = note.body.length > note.preview.length ? '...' : '';
+  const isLocked = note.encrypted && !decryptedContent;
+  const displayTitle = decryptedContent?.title ?? note.title;
+  const displayPreview = decryptedContent
+    ? decryptedContent.body.slice(0, 100)
+    : note.preview;
+  const previewSuffix =
+    decryptedContent && decryptedContent.body.length > displayPreview.length
+      ? '...'
+      : !decryptedContent && note.body.length > note.preview.length
+        ? '...'
+        : '';
   const hopBadge = getHopBadge(note);
   const typeColor = getNoteTypeColor(note.type);
   const accentColor = isGhost ? colors.textMeta : typeColor;
@@ -166,6 +187,44 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
     };
   }, [clearAutoDismiss]);
 
+  const closeUnlockModal = useCallback(() => {
+    setShowUnlockModal(false);
+    setUnlockPassword('');
+    setUnlockError(false);
+  }, []);
+
+  const handleCardPress = useCallback(() => {
+    if (isLocked) {
+      setUnlockError(false);
+      setUnlockPassword('');
+      setShowUnlockModal(true);
+    }
+  }, [isLocked]);
+
+  const handleUnlock = useCallback(() => {
+    if (!note.cipherText || !note.salt || !note.nonce) {
+      setUnlockError(true);
+      return;
+    }
+
+    const decrypted = decryptNoteContent(
+      {
+        cipherText: note.cipherText,
+        salt: note.salt,
+        nonce: note.nonce,
+      },
+      unlockPassword,
+    );
+
+    if (!decrypted) {
+      setUnlockError(true);
+      return;
+    }
+
+    setDecryptedContent(decrypted);
+    closeUnlockModal();
+  }, [closeUnlockModal, note.cipherText, note.nonce, note.salt, unlockPassword]);
+
   return (
     <View
       style={[
@@ -178,6 +237,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
       <TouchableOpacity
         activeOpacity={1}
         delayLongPress={400}
+        onPress={handleCardPress}
         onLongPress={openDetail}>
         <View style={styles.cardInner}>
           <View
@@ -194,6 +254,9 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
                 {note.type.toUpperCase()}
               </Text>
               <View style={styles.badgeRow}>
+                {note.encrypted && !decryptedContent && (
+                  <Text style={styles.lockBadge}>🔒</Text>
+                )}
                 {isGhost && (
                   <Text style={styles.ghostIndicator}>SIGNAL LOST</Text>
                 )}
@@ -212,17 +275,28 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
               />
             )}
 
-            <Text
-              style={[
-                styles.title,
-                { color: isGhost ? colors.textSecondary : colors.textPrimary },
-              ]}>
-              {note.title}
-            </Text>
-            <Text style={styles.preview} numberOfLines={3}>
-              {note.preview}
-              {previewSuffix}
-            </Text>
+            {isLocked ? (
+              <View style={styles.lockedContent}>
+                <Text style={styles.lockedTitle}>{ENCRYPTED_NOTE_TITLE}</Text>
+                <Text style={styles.unlockHint}>TAP TO UNLOCK</Text>
+              </View>
+            ) : (
+              <>
+                <Text
+                  style={[
+                    styles.title,
+                    {
+                      color: isGhost ? colors.textSecondary : colors.textPrimary,
+                    },
+                  ]}>
+                  {displayTitle}
+                </Text>
+                <Text style={styles.preview} numberOfLines={3}>
+                  {displayPreview}
+                  {previewSuffix}
+                </Text>
+              </>
+            )}
 
             <View style={styles.bottomRow}>
               <Text style={styles.metaLeft}>
@@ -292,6 +366,53 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
           </Animated.View>
         </View>
       )}
+
+      <Modal
+        visible={showUnlockModal}
+        transparent
+        animationType="fade"
+        onRequestClose={closeUnlockModal}>
+        <Pressable style={styles.unlockOverlay} onPress={closeUnlockModal}>
+          <Pressable style={styles.unlockDialog} onPress={() => {}}>
+            <Text style={styles.unlockDialogTitle}>UNLOCK TRANSMISSION</Text>
+            <TextInput
+              value={unlockPassword}
+              onChangeText={value => {
+                setUnlockPassword(value);
+                setUnlockError(false);
+              }}
+              placeholder="ENTER PASSWORD"
+              placeholderTextColor={colors.textMeta}
+              style={styles.unlockInput}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus
+            />
+            {unlockError && (
+              <Text style={styles.unlockError}>INCORRECT PASSWORD</Text>
+            )}
+            <View style={styles.unlockActions}>
+              <Pressable onPress={closeUnlockModal} style={styles.unlockButton}>
+                <Text style={styles.unlockButtonLabel}>CANCEL</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleUnlock}
+                style={[styles.unlockButton, styles.unlockButtonPrimary]}
+                disabled={unlockPassword.length === 0}>
+                <Text
+                  style={[
+                    styles.unlockButtonLabel,
+                    styles.unlockButtonLabelPrimary,
+                    unlockPassword.length === 0 && styles.unlockButtonLabelDisabled,
+                  ]}>
+                  UNLOCK
+                </Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -340,6 +461,9 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     fontFamily: fonts.regular,
   },
+  lockBadge: {
+    fontSize: 11,
+  },
   typeStrip: {
     height: 1,
     marginTop: 6,
@@ -354,6 +478,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: fonts.regular,
     marginTop: 4,
+  },
+  lockedContent: {
+    marginTop: 10,
+    gap: 6,
+  },
+  lockedTitle: {
+    fontSize: 15,
+    fontFamily: fonts.bold,
+    color: colors.textSecondary,
+  },
+  unlockHint: {
+    fontSize: 10,
+    letterSpacing: 2,
+    fontFamily: fonts.regular,
+    color: colors.textMeta,
   },
   bottomRow: {
     flexDirection: 'row',
@@ -439,5 +578,71 @@ const styles = StyleSheet.create({
     color: colors.textMeta,
     textAlign: 'center',
     marginTop: 8,
+  },
+  unlockOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  unlockDialog: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: colors.surface,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 20,
+  },
+  unlockDialogTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 11,
+    letterSpacing: 3,
+    color: colors.accent,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  unlockInput: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  unlockError: {
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: colors.error,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  unlockActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 16,
+  },
+  unlockButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  unlockButtonPrimary: {},
+  unlockButtonLabel: {
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: colors.textSecondary,
+  },
+  unlockButtonLabelPrimary: {
+    fontFamily: fonts.bold,
+    color: colors.accent,
+  },
+  unlockButtonLabelDisabled: {
+    color: colors.textMeta,
   },
 });
