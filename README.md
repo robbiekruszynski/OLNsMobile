@@ -143,3 +143,5 @@ Set `ANDROID_HOME` in your shell or `~/.zshrc` if `adb` isn't found.
 ## Credits
 
 [Offline Protocol](https://offlineprotocol.com) mesh SDK.
+
+Original repo (reference): [github.com/robbiekruszynski/OLNs](https://github.com/robbiekruszynski/OLNs)
