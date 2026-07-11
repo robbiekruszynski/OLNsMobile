@@ -39,13 +39,43 @@ still around.
 | waypoint | `#E5A030` | location / direction |
 
 Colors show up on cards, compose, and filters so you can scan the
-feed without reading every title.
+feed without reading every title. The feed filter carousel also has an
+**ENCRYPTED** option that shows only password-protected notes.
+
+## Encrypted notes
+
+When composing, you can toggle **Encrypt this note with a password**.
+The title and body are encrypted on-device before broadcast. Over the
+mesh, peers see a locked card — type, author, and timestamp stay
+visible; content does not.
+
+**What's encrypted:** title and body (stored as `cipherText`, `salt`,
+`nonce` on the note).
+
+**What's not encrypted:** note type, author ID, timestamp, hop count.
+Metadata has to stay readable for the feed and relay to work.
+
+**Crypto** (`src/crypto/noteEncryption.ts`):
+
+- PBKDF2-SHA256 key derivation via `@noble/hashes` (100,000 iterations)
+- NaCl `secretbox` via `tweetnacl`
+- Random salt and nonce per note; password never leaves the device
+
+On the mesh, encrypted notes advertise placeholder title
+(`Encrypted message`) and an empty body. Cipher payload travels in
+service capabilities. Recipients tap the card, enter the password, and
+decrypt locally — unlocked content is not written back to storage, so
+a restart locks the note again.
+
+There is no password recovery. Share the password out-of-band with
+whoever should read the note.
 
 ## Code layout
 
 ```
 src/
   components/     NoteCard
+  crypto/         noteEncryption (PBKDF2 + secretbox)
   identity/       getOrCreateUserId (AsyncStorage)
   mesh/           MeshContext — protocol, relay, ghost detection
   navigation/     stack + tabs
@@ -60,10 +90,13 @@ src/
 `useMesh()`.
 
 Each note (`src/types/Note.ts`): `noteId`, `type`, `title`, `body`,
-`preview`, `authorId`, `timestamp`, `hopOrigin`, optional `relayedBy`.
+`preview`, `authorId`, `timestamp`, `hopOrigin`, optional `relayedBy`,
+`encrypted`, and when encrypted optional `cipherText`, `salt`, `nonce`.
 
 Broadcast puts metadata in service capabilities; peers fetch the full
 body on `service_request_received` / `service_response_received`.
+Encrypted notes return an empty body in the service response — cipher
+data is read from capabilities instead.
 
 Discovery polls every 12s while the mesh is running, and also fires
 1.5s after `neighbor_discovered` so new peers aren't stuck waiting
@@ -77,7 +110,8 @@ pick up the same note at once.
 ## Stack
 
 Expo 56 · React Native 0.85 · mesh-sdk 0.11.0 · expo-dev-client ·
-react-navigation · AsyncStorage · expo-crypto · react-native-svg ·
+react-navigation · AsyncStorage · expo-crypto · tweetnacl ·
+@noble/hashes · react-native-get-random-values · react-native-svg ·
 IBM Plex Mono + Oxanium
 
 Requires a dev build — won't run in Expo Go (native BLE).
@@ -134,8 +168,9 @@ Set `ANDROID_HOME` in your shell or `~/.zshrc` if `adb` isn't found.
 
 ## Roadmap (not built yet)
 
-- **Encrypted groups** — passphrase-derived keys, relay without
-  read access, membership stored locally
+- **Encrypted groups** — shared group keys, relay without read access,
+  membership stored locally (individual password notes exist; group
+  encryption does not)
 - **Desktop relay nodes** — macOS/Linux client as a fixed relay
 - **i18n** — language picker on home is stubbed; i18next planned
 - **Note TTL** — stop relaying and drop from storage after expiry
