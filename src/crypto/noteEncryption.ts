@@ -1,24 +1,16 @@
-import CryptoJS from 'crypto-js';
+import { pbkdf2 } from '@noble/hashes/pbkdf2';
+import { sha256 } from '@noble/hashes/sha256';
 import nacl from 'tweetnacl';
 import { decodeBase64, decodeUTF8, encodeBase64, encodeUTF8 } from 'tweetnacl-util';
 
-const PBKDF2_ITERATIONS = 10_000;
+const PBKDF2_ITERATIONS = 100_000;
 const KEY_BYTES = 32;
 
 export function deriveKey(password: string, salt: Uint8Array): Uint8Array {
-  const saltWords = CryptoJS.lib.WordArray.create(Array.from(salt));
-  const derived = CryptoJS.PBKDF2(password, saltWords, {
-    keySize: KEY_BYTES / 4,
-    iterations: PBKDF2_ITERATIONS,
-    hasher: CryptoJS.algo.SHA256,
+  return pbkdf2(sha256, password, salt, {
+    c: PBKDF2_ITERATIONS,
+    dkLen: KEY_BYTES,
   });
-
-  const key = new Uint8Array(KEY_BYTES);
-  const latin1 = derived.toString(CryptoJS.enc.Latin1);
-  for (let i = 0; i < KEY_BYTES; i++) {
-    key[i] = latin1.charCodeAt(i) & 0xff;
-  }
-  return key;
 }
 
 export function encryptNoteContent(
