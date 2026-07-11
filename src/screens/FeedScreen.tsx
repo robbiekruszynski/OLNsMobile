@@ -22,6 +22,7 @@ import type { Note, NoteType } from '../types/Note';
 const FILTER_OPTIONS: {
   label: string;
   type: NoteType | null;
+  encryptedOnly?: boolean;
   color: string;
 }[] = [
   { label: 'ALL', type: null, color: colors.accent },
@@ -29,6 +30,7 @@ const FILTER_OPTIONS: {
   { type: 'resource', label: 'RESOURCE', color: '#3DAE6E' },
   { type: 'information', label: 'INFORMATION', color: '#4FACDE' },
   { type: 'waypoint', label: 'WAYPOINT', color: '#E5A030' },
+  { label: 'ENCRYPTED', type: null, encryptedOnly: true, color: '#9B6DFF' },
 ];
 
 const DEFAULT_FILTER_INDEX = 0;
@@ -63,14 +65,19 @@ export default function FeedScreen() {
   const selectedFilter = FILTER_OPTIONS[selectedIndex];
   const activeFilter = selectedFilter.type;
   const activeFilterColor = selectedFilter.color;
+  const isEncryptedFilter = Boolean(selectedFilter.encryptedOnly);
 
-  const filteredNotes = useMemo(
-    () =>
-      activeFilter
-        ? allNotes.filter(note => note.type === activeFilter)
-        : allNotes,
-    [activeFilter, allNotes],
-  );
+  const filteredNotes = useMemo(() => {
+    if (isEncryptedFilter) {
+      return allNotes.filter(note => note.encrypted);
+    }
+
+    if (activeFilter) {
+      return allNotes.filter(note => note.type === activeFilter);
+    }
+
+    return allNotes;
+  }, [activeFilter, allNotes, isEncryptedFilter]);
 
   const noteCountLabel =
     filteredNotes.length === 1 ? '1 NOTE' : `${filteredNotes.length} NOTES`;
@@ -236,7 +243,7 @@ export default function FeedScreen() {
   }
 
   function renderEmptyState() {
-    if (activeFilter && filteredNotes.length === 0) {
+    if ((activeFilter || isEncryptedFilter) && filteredNotes.length === 0) {
       return (
         <View style={styles.emptyState}>
           <Text
@@ -377,7 +384,7 @@ export default function FeedScreen() {
         <Text
           style={[
             styles.noteCount,
-            activeFilter &&
+            (activeFilter || isEncryptedFilter) &&
               filteredNotes.length > 0 && {
                 color: `${activeFilterColor}CC`,
               },

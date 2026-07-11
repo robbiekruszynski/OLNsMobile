@@ -16,7 +16,13 @@ export async function getNotes(): Promise<Note[]> {
   const notes = pairs
     .map(([, value]) => value)
     .filter((value): value is string => value != null)
-    .map(value => JSON.parse(value) as Note);
+    .map(value => {
+      const note = JSON.parse(value) as Note;
+      return {
+        ...note,
+        encrypted: note.encrypted ?? false,
+      };
+    });
 
   return notes.sort(
     (a, b) =>

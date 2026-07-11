@@ -9,6 +9,7 @@ import {
   PanResponder,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -17,11 +18,14 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getOrCreateUserId } from '../identity/getOrCreateUserId';
+import { encryptNoteContent } from '../crypto/noteEncryption';
 import { useMesh } from '../mesh/MeshContext';
 import type { RootTabParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
 import { fonts } from '../theme/typography';
 import type { Note, NoteType } from '../types/Note';
+import { ENCRYPTED_NOTE_TITLE } from '../types/Note';
 
 const NOTE_TYPES = [
   { type: 'emergency' as NoteType, label: 'EMERGENCY', color: '#E5433D' },
@@ -43,6 +47,9 @@ export default function ComposeScreen() {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [encryptEnabled, setEncryptEnabled] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [successVisible, setSuccessVisible] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
   const [successTypeColor, setSuccessTypeColor] = useState(
@@ -62,8 +69,16 @@ export default function ComposeScreen() {
   const selectedType = NOTE_TYPES[selectedIndex];
   const currentTypeColor = selectedType.color;
 
+  const passwordsFilled =
+    password.length > 0 && confirmPassword.length > 0;
+  const passwordsMatch = password === confirmPassword;
+  const encryptionReady = !encryptEnabled || (passwordsFilled && passwordsMatch);
+
   const canBroadcast =
-    title.trim().length > 0 && body.trim().length > 0 && !isBroadcasting;
+    title.trim().length > 0 &&
+    body.trim().length > 0 &&
+    !isBroadcasting &&
+    encryptionReady;
 
   selectedIndexRef.current = selectedIndex;
 
@@ -172,6 +187,9 @@ export default function ComposeScreen() {
       setSuccessVisible(false);
       setTitle('');
       setBody('');
+      setEncryptEnabled(false);
+      setPassword('');
+      setConfirmPassword('');
       setSelectedIndex(DEFAULT_TYPE_INDEX);
       navigation.navigate('Feed');
     });
@@ -189,19 +207,62 @@ export default function ComposeScreen() {
 
     try {
       const authorId = await getOrCreateUserId();
+      const trimmedTitle = title.trim();
       const trimmedBody = body.trim();
       const typeColor = selectedType.color;
+      const noteId = Crypto.randomUUID();
+      const timestamp = new Date().toISOString();
 
-      const note: Note = {
-        noteId: Crypto.randomUUID(),
-        type: selectedType.type,
-        title: title.trim(),
-        body: trimmedBody,
-        preview: trimmedBody.slice(0, 100),
-        authorId,
-        timestamp: new Date().toISOString(),
-        hopOrigin: 0,
-      };
+      let note: Note;
+
+      if (encryptEnabled) {
+        const broadcastPassword = password;
+        const { cipherText, salt, nonce } = encryptNoteContent(
+          { title: trimmedTitle, body: trimmedBody },
+          broadcastPassword,
+        );
+
+        setPassword('');
+        setConfirmPassword('');
+
+        note = {
+          noteId,
+          type: selectedType.type,
+          title: ENCRYPTED_NOTE_TITLE,
+          body: '',
+          preview: '',
+          authorId,
+          timestamp,
+          hopOrigin: 0,
+          encrypted: true,
+          cipherText,
+          salt,
+          nonce,
+        };
+
+        if (__DEV__) {
+          console.log('[OLNs] broadcasting encrypted note', {
+            noteId,
+            type: note.type,
+            title: note.title,
+            body: note.body,
+            encrypted: note.encrypted,
+            hasCipherText: Boolean(note.cipherText),
+          });
+        }
+      } else {
+        note = {
+          noteId,
+          type: selectedType.type,
+          title: trimmedTitle,
+          body: trimmedBody,
+          preview: trimmedBody.slice(0, 100),
+          authorId,
+          timestamp,
+          hopOrigin: 0,
+          encrypted: false,
+        };
+      }
 
       await broadcastNote(note);
       showSuccessFlash(typeColor);
@@ -216,7 +277,8 @@ export default function ComposeScreen() {
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? spacing.lg : 0}>
         <View style={styles.flex}>
           <Animated.View
             pointerEvents="none"
@@ -229,142 +291,210 @@ export default function ComposeScreen() {
             ]}
           />
 
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>COMPOSE</Text>
-          </View>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingBottom: insets.bottom + spacing.md },
+            ]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            showsVerticalScrollIndicator={false}>
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>COMPOSE</Text>
+            </View>
 
-          <View
-            style={styles.typeCarousel}
-            {...panResponder.panHandlers}>
-            <Pressable
-              onPress={goToPrevious}
-              hitSlop={20}
-              style={styles.arrowButton}>
-              <Text
+            <View
+              style={styles.typeCarousel}
+              {...panResponder.panHandlers}>
+              <Pressable
+                onPress={goToPrevious}
+                hitSlop={20}
+                style={styles.arrowButton}>
+                <Text
+                  style={[
+                    styles.arrow,
+                    { color: `${currentTypeColor}B3` },
+                  ]}>
+                  ‹
+                </Text>
+              </Pressable>
+
+              <View style={styles.typeCenter}>
+                <Animated.Text
+                  style={[
+                    styles.typeName,
+                    {
+                      color: currentTypeColor,
+                      opacity: labelOpacity,
+                    },
+                  ]}>
+                  {selectedType.label}
+                </Animated.Text>
+
+                <View style={styles.dotsRow}>
+                  {NOTE_TYPES.map((typeOption, index) => (
+                    <Animated.View
+                      key={typeOption.type}
+                      style={[
+                        styles.dot,
+                        {
+                          width: dotWidths[index],
+                          backgroundColor:
+                            index === selectedIndex
+                              ? currentTypeColor
+                              : colors.border,
+                          borderRadius: index === selectedIndex ? 3 : 2.5,
+                        },
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              <Pressable
+                onPress={goToNext}
+                hitSlop={20}
+                style={styles.arrowButton}>
+                <Text
+                  style={[
+                    styles.arrow,
+                    { color: `${currentTypeColor}B3` },
+                  ]}>
+                  ›
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.formSection}>
+              <TextInput
+                value={title}
+                onChangeText={value => setTitle(value.slice(0, TITLE_MAX))}
+                placeholder="TRANSMISSION TITLE"
+                placeholderTextColor={colors.textMeta}
+                style={styles.titleInput}
+                maxLength={TITLE_MAX}
+              />
+              <View
                 style={[
-                  styles.arrow,
-                  { color: `${currentTypeColor}B3` },
-                ]}>
-                ‹
+                  styles.titleBorder,
+                  { backgroundColor: currentTypeColor },
+                ]}
+              />
+              <Text style={styles.titleCount}>
+                {title.length}/{TITLE_MAX}
               </Text>
-            </Pressable>
 
-            <View style={styles.typeCenter}>
-              <Animated.Text
-                style={[
-                  styles.typeName,
-                  {
-                    color: currentTypeColor,
-                    opacity: labelOpacity,
-                  },
-                ]}>
-                {selectedType.label}
-              </Animated.Text>
+              <View style={styles.sectionDivider} />
 
-              <View style={styles.dotsRow}>
-                {NOTE_TYPES.map((typeOption, index) => (
-                  <Animated.View
-                    key={typeOption.type}
+              <View style={styles.bodyContainer}>
+                <TextInput
+                  value={body}
+                  onChangeText={value => setBody(value.slice(0, BODY_MAX))}
+                  placeholder="COMPOSE YOUR TRANSMISSION..."
+                  placeholderTextColor={colors.textMeta}
+                  style={styles.bodyInput}
+                  multiline
+                  textAlignVertical="top"
+                  maxLength={BODY_MAX}
+                />
+                <Text style={styles.bodyCount}>
+                  {body.length}/{BODY_MAX}
+                </Text>
+              </View>
+
+              <View style={styles.encryptSection}>
+                <Pressable
+                  onPress={() => {
+                    setEncryptEnabled(current => !current);
+                    setPassword('');
+                    setConfirmPassword('');
+                  }}
+                  style={styles.encryptToggleRow}>
+                  <View
                     style={[
-                      styles.dot,
-                      {
-                        width: dotWidths[index],
-                        backgroundColor:
-                          index === selectedIndex
-                            ? currentTypeColor
-                            : colors.border,
-                        borderRadius: index === selectedIndex ? 3 : 2.5,
+                      styles.encryptToggle,
+                      encryptEnabled && {
+                        backgroundColor: `${currentTypeColor}33`,
+                        borderColor: currentTypeColor,
                       },
-                    ]}
-                  />
-                ))}
+                    ]}>
+                    <View
+                      style={[
+                        styles.encryptToggleKnob,
+                        encryptEnabled && {
+                          alignSelf: 'flex-end',
+                          backgroundColor: currentTypeColor,
+                        },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.encryptToggleLabel}>
+                    ENCRYPT THIS NOTE WITH A PASSWORD
+                  </Text>
+                </Pressable>
+
+                {encryptEnabled && (
+                  <View style={styles.passwordFields}>
+                    <TextInput
+                      value={password}
+                      onChangeText={setPassword}
+                      placeholder="PASSWORD"
+                      placeholderTextColor={colors.textMeta}
+                      style={styles.passwordInput}
+                      secureTextEntry
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    <TextInput
+                      value={confirmPassword}
+                      onChangeText={setConfirmPassword}
+                      placeholder="CONFIRM PASSWORD"
+                      placeholderTextColor={colors.textMeta}
+                      style={styles.passwordInput}
+                      secureTextEntry
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                    />
+                    {passwordsFilled && !passwordsMatch && (
+                      <Text style={styles.passwordError}>
+                        PASSWORDS DO NOT MATCH
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {errorVisible && (
+                <Text style={styles.errorMessage}>BROADCAST FAILED</Text>
+              )}
+
+              <View style={styles.broadcastZone}>
+                <Pressable
+                  onPress={handleBroadcast}
+                  disabled={!canBroadcast}
+                  style={[
+                    styles.broadcastButton,
+                    canBroadcast
+                      ? {
+                          backgroundColor: `${currentTypeColor}26`,
+                          borderColor: currentTypeColor,
+                        }
+                      : styles.broadcastButtonInactive,
+                  ]}>
+                  <Text
+                    style={[
+                      styles.broadcastLabel,
+                      canBroadcast
+                        ? { color: currentTypeColor }
+                        : styles.broadcastLabelInactive,
+                    ]}>
+                    BROADCAST
+                  </Text>
+                </Pressable>
               </View>
             </View>
-
-            <Pressable
-              onPress={goToNext}
-              hitSlop={20}
-              style={styles.arrowButton}>
-              <Text
-                style={[
-                  styles.arrow,
-                  { color: `${currentTypeColor}B3` },
-                ]}>
-                ›
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.inputArea}>
-            <TextInput
-              value={title}
-              onChangeText={value => setTitle(value.slice(0, TITLE_MAX))}
-              placeholder="TRANSMISSION TITLE"
-              placeholderTextColor={colors.textMeta}
-              style={styles.titleInput}
-              maxLength={TITLE_MAX}
-            />
-            <View
-              style={[
-                styles.titleBorder,
-                { backgroundColor: currentTypeColor },
-              ]}
-            />
-            <Text style={styles.titleCount}>
-              {title.length}/{TITLE_MAX}
-            </Text>
-
-            <View style={styles.sectionDivider} />
-
-            <View style={styles.bodyContainer}>
-              <TextInput
-                value={body}
-                onChangeText={value => setBody(value.slice(0, BODY_MAX))}
-                placeholder="COMPOSE YOUR TRANSMISSION..."
-                placeholderTextColor={colors.textMeta}
-                style={styles.bodyInput}
-                multiline
-                textAlignVertical="top"
-                maxLength={BODY_MAX}
-              />
-              <Text style={styles.bodyCount}>
-                {body.length}/{BODY_MAX}
-              </Text>
-            </View>
-
-            {errorVisible && (
-              <Text style={styles.errorMessage}>BROADCAST FAILED</Text>
-            )}
-          </View>
-
-          <View
-            style={[
-              styles.broadcastZone,
-              { paddingBottom: insets.bottom + 16 },
-            ]}>
-            <Pressable
-              onPress={handleBroadcast}
-              disabled={!canBroadcast}
-              style={[
-                styles.broadcastButton,
-                canBroadcast
-                  ? {
-                      backgroundColor: `${currentTypeColor}26`,
-                      borderColor: currentTypeColor,
-                    }
-                  : styles.broadcastButtonInactive,
-              ]}>
-              <Text
-                style={[
-                  styles.broadcastLabel,
-                  canBroadcast
-                    ? { color: currentTypeColor }
-                    : styles.broadcastLabelInactive,
-                ]}>
-                BROADCAST
-              </Text>
-            </Pressable>
-          </View>
+          </ScrollView>
         </View>
 
         {successVisible && (
@@ -400,10 +530,16 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: -1,
   },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
     alignItems: 'center',
   },
   headerTitle: {
@@ -414,10 +550,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   typeCarousel: {
-    height: 100,
+    height: spacing.xxl * 2 + spacing.sm,
     width: '100%',
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -443,45 +579,45 @@ const styles = StyleSheet.create({
   dotsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 10,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
   },
   dot: {
-    height: 5,
+    height: spacing.xs + 1,
   },
-  inputArea: {
-    flex: 1,
-    paddingHorizontal: 16,
+  formSection: {
+    paddingHorizontal: spacing.md,
   },
   titleInput: {
     fontFamily: fonts.regular,
     fontSize: 16,
     color: colors.textPrimary,
-    paddingVertical: 14,
+    paddingVertical: spacing.sm + spacing.xs,
     paddingHorizontal: 0,
   },
   titleBorder: {
     height: 1,
     opacity: 0.5,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   titleCount: {
     alignSelf: 'flex-end',
     fontFamily: fonts.regular,
     fontSize: 10,
     color: colors.textMeta,
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   sectionDivider: {
     height: 1,
     backgroundColor: colors.border,
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   bodyContainer: {
-    flex: 1,
+    minHeight: spacing.xxl * 5,
+    marginBottom: spacing.md,
   },
   bodyInput: {
-    flex: 1,
+    minHeight: spacing.xxl * 5 - spacing.lg,
     fontFamily: fonts.regular,
     fontSize: 15,
     lineHeight: 24,
@@ -489,6 +625,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     paddingTop: 0,
     paddingHorizontal: 0,
+    paddingBottom: spacing.lg,
   },
   bodyCount: {
     position: 'absolute',
@@ -499,8 +636,8 @@ const styles = StyleSheet.create({
     color: colors.textMeta,
   },
   broadcastZone: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: spacing.md,
+    marginTop: spacing.sm,
   },
   broadcastButton: {
     height: 52,
@@ -537,6 +674,60 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     color: colors.error,
     textAlign: 'center',
-    marginTop: 16,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  encryptSection: {
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  encryptToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm + spacing.xs,
+  },
+  encryptToggle: {
+    width: 40,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 2,
+    justifyContent: 'center',
+  },
+  encryptToggleKnob: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: colors.textMeta,
+  },
+  encryptToggleLabel: {
+    flex: 1,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: colors.textSecondary,
+  },
+  passwordFields: {
+    marginTop: spacing.sm + spacing.xs,
+    gap: spacing.sm,
+  },
+  passwordInput: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: spacing.xs,
+    paddingHorizontal: spacing.sm + spacing.xs,
+    paddingVertical: spacing.sm + spacing.xs,
+  },
+  passwordError: {
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: colors.error,
+    textAlign: 'center',
   },
 });
