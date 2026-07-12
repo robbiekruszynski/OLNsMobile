@@ -3,7 +3,7 @@
 Short notes over BLE mesh. No server, no cell, no Wi-Fi. Public or
 password-encrypted.
 
-[Watch the OLNs demo](./assets/OLNS_demo.mp4)
+[Watch the OLNs demo](https://github.com/user-attachments/assets/413be3f9-ea9b-47e0-b843-fc902255f218)
 
 Built with Expo SDK 56, React Native 0.85.3, and
 [@offline-protocol/mesh-sdk](https://www.npmjs.com/package/@offline-protocol/mesh-sdk)
