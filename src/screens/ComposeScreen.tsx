@@ -1,7 +1,7 @@
 import * as Crypto from 'expo-crypto';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   InputAccessoryView,
@@ -39,6 +39,7 @@ const DEFAULT_TYPE_INDEX = 2;
 const TITLE_MAX = 80;
 const BODY_MAX = 1000;
 const BODY_ACCESSORY_ID = 'compose-body-accessory';
+type BroadcastPhase = 'idle' | 'encrypting' | 'transmitting';
 
 export default function ComposeScreen() {
   const insets = useSafeAreaInsets();
@@ -48,7 +49,8 @@ export default function ComposeScreen() {
   const [selectedIndex, setSelectedIndex] = useState(DEFAULT_TYPE_INDEX);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [broadcastPhase, setBroadcastPhase] =
+    useState<BroadcastPhase>('idle');
   const [encryptEnabled, setEncryptEnabled] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,6 +61,7 @@ export default function ComposeScreen() {
   );
 
   const successOverlayOpacity = useRef(new Animated.Value(0)).current;
+  const broadcastPulseOpacity = useRef(new Animated.Value(1)).current;
   const labelOpacity = useRef(new Animated.Value(1)).current;
   const moodTintOpacity = useRef(new Animated.Value(0.04)).current;
   const dotWidths = useRef(
@@ -81,8 +84,16 @@ export default function ComposeScreen() {
   const canBroadcast =
     title.trim().length > 0 &&
     body.trim().length > 0 &&
-    !isBroadcasting &&
+    broadcastPhase === 'idle' &&
     encryptionReady;
+  const isBroadcasting = broadcastPhase !== 'idle';
+
+  const broadcastLabel =
+    broadcastPhase === 'encrypting'
+      ? 'ENCRYPTING...'
+      : broadcastPhase === 'transmitting'
+        ? 'TRANSMITTING...'
+        : 'BROADCAST';
 
   selectedIndexRef.current = selectedIndex;
 
@@ -110,6 +121,41 @@ export default function ComposeScreen() {
     Keyboard.dismiss();
     scrollToFormEnd();
   }, [scrollToFormEnd]);
+
+  const waitForLoadingPaint = useCallback(
+    () =>
+      new Promise<void>(resolve => {
+        requestAnimationFrame(() => {
+          setTimeout(resolve, 0);
+        });
+      }),
+    [],
+  );
+
+  useEffect(() => {
+    if (!isBroadcasting) {
+      broadcastPulseOpacity.setValue(1);
+      return;
+    }
+
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(broadcastPulseOpacity, {
+          toValue: 0.35,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(broadcastPulseOpacity, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [broadcastPulseOpacity, isBroadcasting]);
 
   const goToIndex = useCallback(
     (nextIndex: number) => {
@@ -230,7 +276,7 @@ export default function ComposeScreen() {
     }
 
     Keyboard.dismiss();
-    setIsBroadcasting(true);
+    setBroadcastPhase(encryptEnabled ? 'encrypting' : 'transmitting');
     setErrorVisible(false);
     setSuccessVisible(false);
 
@@ -246,10 +292,12 @@ export default function ComposeScreen() {
 
       if (encryptEnabled) {
         const broadcastPassword = password;
+        await waitForLoadingPaint();
         const { cipherText, salt, nonce } = encryptNoteContent(
           { title: trimmedTitle, body: trimmedBody },
           broadcastPassword,
         );
+        setBroadcastPhase('transmitting');
 
         setPassword('');
         setConfirmPassword('');
@@ -293,12 +341,16 @@ export default function ComposeScreen() {
         };
       }
 
+      if (!encryptEnabled) {
+        await waitForLoadingPaint();
+      }
+
       await broadcastNote(note);
       showSuccessFlash(typeColor);
     } catch {
       setErrorVisible(true);
     } finally {
-      setIsBroadcasting(false);
+      setBroadcastPhase('idle');
     }
   }
 
@@ -523,15 +575,19 @@ export default function ComposeScreen() {
                           }
                         : styles.broadcastButtonInactive,
                     ]}>
-                    <Text
+                    <Animated.Text
                       style={[
                         styles.broadcastLabel,
                         canBroadcast
                           ? { color: currentTypeColor }
                           : styles.broadcastLabelInactive,
+                        isBroadcasting && {
+                          color: currentTypeColor,
+                          opacity: broadcastPulseOpacity,
+                        },
                       ]}>
-                      BROADCAST
-                    </Text>
+                      {broadcastLabel}
+                    </Animated.Text>
                   </Pressable>
                 </View>
               </View>

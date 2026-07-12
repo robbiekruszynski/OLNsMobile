@@ -90,6 +90,13 @@ const HOW_IT_WORKS_STEPS = [
     description:
       'Open the feed to see notes from the mesh around you, from people nearby, or messages that have traveled through many hands to reach you.',
   },
+  {
+    number: '05',
+    title: 'ENCRYPT',
+    color: '#9B6DFF',
+    description:
+      'Add a password while composing to lock a note. Title and body encrypt on-device before broadcast — peers see a locked card until they enter it. There is no recovery, so share the password separately.',
+  },
 ] as const;
 
 interface NodeData {

@@ -119,12 +119,15 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [unlockPassword, setUnlockPassword] = useState('');
   const [unlockError, setUnlockError] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
   const [decryptedContent, setDecryptedContent] = useState<{
     title: string;
     body: string;
   } | null>(null);
   const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const unlockPulseOpacity = useRef(new Animated.Value(1)).current;
   const autoDismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isLocked = note.encrypted && !decryptedContent;
   const displayTitle = decryptedContent?.title ?? note.title;
@@ -191,6 +194,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
     setShowUnlockModal(false);
     setUnlockPassword('');
     setUnlockError(false);
+    setIsUnlocking(false);
   }, []);
 
   const handleCardPress = useCallback(() => {
@@ -202,28 +206,82 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
   }, [isLocked]);
 
   const handleUnlock = useCallback(() => {
+    if (isUnlocking) {
+      return;
+    }
+
     if (!note.cipherText || !note.salt || !note.nonce) {
       setUnlockError(true);
       return;
     }
 
-    const decrypted = decryptNoteContent(
-      {
-        cipherText: note.cipherText,
-        salt: note.salt,
-        nonce: note.nonce,
-      },
-      unlockPassword,
-    );
+    const { cipherText, salt, nonce } = note;
 
-    if (!decrypted) {
-      setUnlockError(true);
+    setIsUnlocking(true);
+    setUnlockError(false);
+
+    unlockTimerRef.current = setTimeout(() => {
+      unlockTimerRef.current = null;
+      const decrypted = decryptNoteContent(
+        {
+          cipherText,
+          salt,
+          nonce,
+        },
+        unlockPassword,
+      );
+
+      if (!decrypted) {
+        setUnlockError(true);
+        setIsUnlocking(false);
+        return;
+      }
+
+      setDecryptedContent(decrypted);
+      setIsUnlocking(false);
+      closeUnlockModal();
+    }, 0);
+  }, [
+    closeUnlockModal,
+    isUnlocking,
+    note.cipherText,
+    note.nonce,
+    note.salt,
+    unlockPassword,
+  ]);
+
+  useEffect(() => {
+    if (!isUnlocking) {
+      unlockPulseOpacity.setValue(1);
       return;
     }
 
-    setDecryptedContent(decrypted);
-    closeUnlockModal();
-  }, [closeUnlockModal, note.cipherText, note.nonce, note.salt, unlockPassword]);
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(unlockPulseOpacity, {
+          toValue: 0.35,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(unlockPulseOpacity, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [isUnlocking, unlockPulseOpacity]);
+
+  useEffect(() => {
+    return () => {
+      if (unlockTimerRef.current) {
+        clearTimeout(unlockTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <View
@@ -371,8 +429,18 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
         visible={showUnlockModal}
         transparent
         animationType="fade"
-        onRequestClose={closeUnlockModal}>
-        <Pressable style={styles.unlockOverlay} onPress={closeUnlockModal}>
+        onRequestClose={() => {
+          if (!isUnlocking) {
+            closeUnlockModal();
+          }
+        }}>
+        <Pressable
+          style={styles.unlockOverlay}
+          onPress={() => {
+            if (!isUnlocking) {
+              closeUnlockModal();
+            }
+          }}>
           <Pressable style={styles.unlockDialog} onPress={() => {}}>
             <Text style={styles.unlockDialogTitle}>UNLOCK TRANSMISSION</Text>
             <TextInput
@@ -388,26 +456,41 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
               autoCapitalize="none"
               autoCorrect={false}
               autoFocus
+              editable={!isUnlocking}
             />
             {unlockError && (
               <Text style={styles.unlockError}>INCORRECT PASSWORD</Text>
             )}
             <View style={styles.unlockActions}>
-              <Pressable onPress={closeUnlockModal} style={styles.unlockButton}>
-                <Text style={styles.unlockButtonLabel}>CANCEL</Text>
+              <Pressable
+                onPress={closeUnlockModal}
+                style={styles.unlockButton}
+                disabled={isUnlocking}>
+                <Text
+                  style={[
+                    styles.unlockButtonLabel,
+                    isUnlocking && styles.unlockButtonLabelDisabled,
+                  ]}>
+                  CANCEL
+                </Text>
               </Pressable>
               <Pressable
                 onPress={handleUnlock}
                 style={[styles.unlockButton, styles.unlockButtonPrimary]}
-                disabled={unlockPassword.length === 0}>
-                <Text
+                disabled={unlockPassword.length === 0 || isUnlocking}>
+                <Animated.Text
                   style={[
                     styles.unlockButtonLabel,
                     styles.unlockButtonLabelPrimary,
-                    unlockPassword.length === 0 && styles.unlockButtonLabelDisabled,
+                    (unlockPassword.length === 0 || isUnlocking) &&
+                      styles.unlockButtonLabelDisabled,
+                    isUnlocking && {
+                      color: colors.accent,
+                      opacity: unlockPulseOpacity,
+                    },
                   ]}>
-                  UNLOCK
-                </Text>
+                  {isUnlocking ? 'DECRYPTING...' : 'UNLOCK'}
+                </Animated.Text>
               </Pressable>
             </View>
           </Pressable>
