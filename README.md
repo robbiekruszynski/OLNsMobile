@@ -3,9 +3,7 @@
 Short notes over BLE mesh. No server, no cell, no Wi-Fi. Public or
 password-encrypted.
 
-<video src="./assets/OLNS_demo.mp4" controls width="360">
-  OLNs demo video
-</video>
+[Watch the OLNs demo](./assets/OLNS_demo.mp4)
 
 Built with Expo SDK 56, React Native 0.85.3, and
 [@offline-protocol/mesh-sdk](https://www.npmjs.com/package/@offline-protocol/mesh-sdk)
@@ -173,8 +171,6 @@ Set `ANDROID_HOME` in your shell or `~/.zshrc` if `adb` isn't found.
 
 ## Roadmap (not built yet)
 
-- **Encrypted groups** — shared group keys, relay without read access,
-  membership stored locally (individual password notes exist; group
   encryption does not)
 - **Desktop relay nodes** — macOS/Linux client as a fixed relay
 - **i18n** — language picker on home is stubbed; i18next planned
