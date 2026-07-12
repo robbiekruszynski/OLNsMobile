@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
   PanResponder,
@@ -37,6 +38,7 @@ const NOTE_TYPES = [
 const DEFAULT_TYPE_INDEX = 2;
 const TITLE_MAX = 80;
 const BODY_MAX = 1000;
+const BODY_ACCESSORY_ID = 'compose-body-accessory';
 
 export default function ComposeScreen() {
   const insets = useSafeAreaInsets();
@@ -65,6 +67,8 @@ export default function ComposeScreen() {
     ),
   ).current;
   const selectedIndexRef = useRef(DEFAULT_TYPE_INDEX);
+  const scrollRef = useRef<ScrollView>(null);
+  const bodyInputRef = useRef<TextInput>(null);
 
   const selectedType = NOTE_TYPES[selectedIndex];
   const currentTypeColor = selectedType.color;
@@ -81,6 +85,31 @@ export default function ComposeScreen() {
     encryptionReady;
 
   selectedIndexRef.current = selectedIndex;
+
+  const scrollToFormEnd = useCallback(() => {
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+  }, []);
+
+  const handleEncryptToggle = useCallback(() => {
+    setEncryptEnabled(current => {
+      const next = !current;
+
+      if (next) {
+        scrollToFormEnd();
+      }
+
+      return next;
+    });
+    setPassword('');
+    setConfirmPassword('');
+  }, [scrollToFormEnd]);
+
+  const handleBodyDone = useCallback(() => {
+    Keyboard.dismiss();
+    scrollToFormEnd();
+  }, [scrollToFormEnd]);
 
   const goToIndex = useCallback(
     (nextIndex: number) => {
@@ -292,210 +321,242 @@ export default function ComposeScreen() {
           />
 
           <ScrollView
+            ref={scrollRef}
             style={styles.scroll}
             contentContainerStyle={[
               styles.scrollContent,
               { paddingBottom: insets.bottom + spacing.md },
             ]}
             keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
+            keyboardDismissMode={
+              Platform.OS === 'ios' ? 'interactive' : 'on-drag'
+            }
             showsVerticalScrollIndicator={false}>
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>COMPOSE</Text>
-            </View>
-
-            <View
-              style={styles.typeCarousel}
-              {...panResponder.panHandlers}>
-              <Pressable
-                onPress={goToPrevious}
-                hitSlop={20}
-                style={styles.arrowButton}>
-                <Text
-                  style={[
-                    styles.arrow,
-                    { color: `${currentTypeColor}B3` },
-                  ]}>
-                  ‹
-                </Text>
-              </Pressable>
-
-              <View style={styles.typeCenter}>
-                <Animated.Text
-                  style={[
-                    styles.typeName,
-                    {
-                      color: currentTypeColor,
-                      opacity: labelOpacity,
-                    },
-                  ]}>
-                  {selectedType.label}
-                </Animated.Text>
-
-                <View style={styles.dotsRow}>
-                  {NOTE_TYPES.map((typeOption, index) => (
-                    <Animated.View
-                      key={typeOption.type}
-                      style={[
-                        styles.dot,
-                        {
-                          width: dotWidths[index],
-                          backgroundColor:
-                            index === selectedIndex
-                              ? currentTypeColor
-                              : colors.border,
-                          borderRadius: index === selectedIndex ? 3 : 2.5,
-                        },
-                      ]}
-                    />
-                  ))}
-                </View>
+            <Pressable
+              onPress={Keyboard.dismiss}
+              style={styles.dismissLayer}>
+              <View style={styles.header}>
+                <Text style={styles.headerTitle}>COMPOSE</Text>
               </View>
 
-              <Pressable
-                onPress={goToNext}
-                hitSlop={20}
-                style={styles.arrowButton}>
-                <Text
-                  style={[
-                    styles.arrow,
-                    { color: `${currentTypeColor}B3` },
-                  ]}>
-                  ›
-                </Text>
-              </Pressable>
-            </View>
-
-            <View style={styles.formSection}>
-              <TextInput
-                value={title}
-                onChangeText={value => setTitle(value.slice(0, TITLE_MAX))}
-                placeholder="TRANSMISSION TITLE"
-                placeholderTextColor={colors.textMeta}
-                style={styles.titleInput}
-                maxLength={TITLE_MAX}
-              />
               <View
-                style={[
-                  styles.titleBorder,
-                  { backgroundColor: currentTypeColor },
-                ]}
-              />
-              <Text style={styles.titleCount}>
-                {title.length}/{TITLE_MAX}
-              </Text>
-
-              <View style={styles.sectionDivider} />
-
-              <View style={styles.bodyContainer}>
-                <TextInput
-                  value={body}
-                  onChangeText={value => setBody(value.slice(0, BODY_MAX))}
-                  placeholder="COMPOSE YOUR TRANSMISSION..."
-                  placeholderTextColor={colors.textMeta}
-                  style={styles.bodyInput}
-                  multiline
-                  textAlignVertical="top"
-                  maxLength={BODY_MAX}
-                />
-                <Text style={styles.bodyCount}>
-                  {body.length}/{BODY_MAX}
-                </Text>
-              </View>
-
-              <View style={styles.encryptSection}>
+                style={styles.typeCarousel}
+                {...panResponder.panHandlers}>
                 <Pressable
-                  onPress={() => {
-                    setEncryptEnabled(current => !current);
-                    setPassword('');
-                    setConfirmPassword('');
-                  }}
-                  style={styles.encryptToggleRow}>
-                  <View
-                    style={[
-                      styles.encryptToggle,
-                      encryptEnabled && {
-                        backgroundColor: `${currentTypeColor}33`,
-                        borderColor: currentTypeColor,
-                      },
-                    ]}>
-                    <View
-                      style={[
-                        styles.encryptToggleKnob,
-                        encryptEnabled && {
-                          alignSelf: 'flex-end',
-                          backgroundColor: currentTypeColor,
-                        },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.encryptToggleLabel}>
-                    ENCRYPT THIS NOTE WITH A PASSWORD
-                  </Text>
-                </Pressable>
-
-                {encryptEnabled && (
-                  <View style={styles.passwordFields}>
-                    <TextInput
-                      value={password}
-                      onChangeText={setPassword}
-                      placeholder="PASSWORD"
-                      placeholderTextColor={colors.textMeta}
-                      style={styles.passwordInput}
-                      secureTextEntry
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                    <TextInput
-                      value={confirmPassword}
-                      onChangeText={setConfirmPassword}
-                      placeholder="CONFIRM PASSWORD"
-                      placeholderTextColor={colors.textMeta}
-                      style={styles.passwordInput}
-                      secureTextEntry
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                    {passwordsFilled && !passwordsMatch && (
-                      <Text style={styles.passwordError}>
-                        PASSWORDS DO NOT MATCH
-                      </Text>
-                    )}
-                  </View>
-                )}
-              </View>
-
-              {errorVisible && (
-                <Text style={styles.errorMessage}>BROADCAST FAILED</Text>
-              )}
-
-              <View style={styles.broadcastZone}>
-                <Pressable
-                  onPress={handleBroadcast}
-                  disabled={!canBroadcast}
-                  style={[
-                    styles.broadcastButton,
-                    canBroadcast
-                      ? {
-                          backgroundColor: `${currentTypeColor}26`,
-                          borderColor: currentTypeColor,
-                        }
-                      : styles.broadcastButtonInactive,
-                  ]}>
+                  onPress={goToPrevious}
+                  hitSlop={20}
+                  style={styles.arrowButton}>
                   <Text
                     style={[
-                      styles.broadcastLabel,
-                      canBroadcast
-                        ? { color: currentTypeColor }
-                        : styles.broadcastLabelInactive,
+                      styles.arrow,
+                      { color: `${currentTypeColor}B3` },
                     ]}>
-                    BROADCAST
+                    ‹
+                  </Text>
+                </Pressable>
+
+                <View style={styles.typeCenter}>
+                  <Animated.Text
+                    style={[
+                      styles.typeName,
+                      {
+                        color: currentTypeColor,
+                        opacity: labelOpacity,
+                      },
+                    ]}>
+                    {selectedType.label}
+                  </Animated.Text>
+
+                  <View style={styles.dotsRow}>
+                    {NOTE_TYPES.map((typeOption, index) => (
+                      <Animated.View
+                        key={typeOption.type}
+                        style={[
+                          styles.dot,
+                          {
+                            width: dotWidths[index],
+                            backgroundColor:
+                              index === selectedIndex
+                                ? currentTypeColor
+                                : colors.border,
+                            borderRadius: index === selectedIndex ? 3 : 2.5,
+                          },
+                        ]}
+                      />
+                    ))}
+                  </View>
+                </View>
+
+                <Pressable
+                  onPress={goToNext}
+                  hitSlop={20}
+                  style={styles.arrowButton}>
+                  <Text
+                    style={[
+                      styles.arrow,
+                      { color: `${currentTypeColor}B3` },
+                    ]}>
+                    ›
                   </Text>
                 </Pressable>
               </View>
-            </View>
+
+              <View style={styles.formSection}>
+                <TextInput
+                  value={title}
+                  onChangeText={value => setTitle(value.slice(0, TITLE_MAX))}
+                  placeholder="TRANSMISSION TITLE"
+                  placeholderTextColor={colors.textMeta}
+                  style={styles.titleInput}
+                  maxLength={TITLE_MAX}
+                  returnKeyType="next"
+                  onSubmitEditing={() => bodyInputRef.current?.focus()}
+                />
+                <View
+                  style={[
+                    styles.titleBorder,
+                    { backgroundColor: currentTypeColor },
+                  ]}
+                />
+                <Text style={styles.titleCount}>
+                  {title.length}/{TITLE_MAX}
+                </Text>
+
+                <View style={styles.sectionDivider} />
+
+                <View style={styles.bodyContainer}>
+                  <TextInput
+                    ref={bodyInputRef}
+                    value={body}
+                    onChangeText={value => setBody(value.slice(0, BODY_MAX))}
+                    placeholder="COMPOSE YOUR TRANSMISSION..."
+                    placeholderTextColor={colors.textMeta}
+                    style={styles.bodyInput}
+                    multiline
+                    textAlignVertical="top"
+                    maxLength={BODY_MAX}
+                    inputAccessoryViewID={
+                      Platform.OS === 'ios' ? BODY_ACCESSORY_ID : undefined
+                    }
+                    onBlur={scrollToFormEnd}
+                  />
+                  <Text style={styles.bodyCount}>
+                    {body.length}/{BODY_MAX}
+                  </Text>
+                </View>
+
+                <View style={styles.encryptSection}>
+                  <Pressable
+                    onPress={handleEncryptToggle}
+                    hitSlop={20}
+                    style={styles.encryptToggleRow}>
+                    <View
+                      style={[
+                        styles.encryptToggle,
+                        encryptEnabled && {
+                          backgroundColor: `${currentTypeColor}33`,
+                          borderColor: currentTypeColor,
+                        },
+                      ]}>
+                      <View
+                        style={[
+                          styles.encryptToggleKnob,
+                          encryptEnabled && {
+                            alignSelf: 'flex-end',
+                            backgroundColor: currentTypeColor,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.encryptToggleLabel}>
+                      ENCRYPT THIS NOTE WITH A PASSWORD
+                    </Text>
+                  </Pressable>
+
+                  {encryptEnabled && (
+                    <View style={styles.passwordFields}>
+                      <TextInput
+                        value={password}
+                        onChangeText={setPassword}
+                        placeholder="PASSWORD"
+                        placeholderTextColor={colors.textMeta}
+                        style={styles.passwordInput}
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        onFocus={scrollToFormEnd}
+                      />
+                      <TextInput
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        placeholder="CONFIRM PASSWORD"
+                        placeholderTextColor={colors.textMeta}
+                        style={styles.passwordInput}
+                        secureTextEntry
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        onFocus={scrollToFormEnd}
+                      />
+                      {passwordsFilled && !passwordsMatch && (
+                        <Text style={styles.passwordError}>
+                          PASSWORDS DO NOT MATCH
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                </View>
+
+                {errorVisible && (
+                  <Text style={styles.errorMessage}>BROADCAST FAILED</Text>
+                )}
+
+                <View style={styles.broadcastZone}>
+                  <Pressable
+                    onPress={handleBroadcast}
+                    disabled={!canBroadcast}
+                    style={[
+                      styles.broadcastButton,
+                      canBroadcast
+                        ? {
+                            backgroundColor: `${currentTypeColor}26`,
+                            borderColor: currentTypeColor,
+                          }
+                        : styles.broadcastButtonInactive,
+                    ]}>
+                    <Text
+                      style={[
+                        styles.broadcastLabel,
+                        canBroadcast
+                          ? { color: currentTypeColor }
+                          : styles.broadcastLabelInactive,
+                      ]}>
+                      BROADCAST
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Pressable>
           </ScrollView>
         </View>
+
+        {Platform.OS === 'ios' && (
+          <InputAccessoryView nativeID={BODY_ACCESSORY_ID}>
+            <View style={styles.keyboardToolbar}>
+              <Pressable
+                onPress={handleBodyDone}
+                hitSlop={12}
+                style={styles.keyboardDoneButton}>
+                <Text
+                  style={[
+                    styles.keyboardDoneLabel,
+                    { color: currentTypeColor },
+                  ]}>
+                  DONE
+                </Text>
+              </Pressable>
+            </View>
+          </InputAccessoryView>
+        )}
 
         {successVisible && (
           <Animated.View
@@ -534,6 +595,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
+  },
+  dismissLayer: {
     flexGrow: 1,
   },
   header: {
@@ -729,5 +793,23 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: colors.error,
     textAlign: 'center',
+  },
+  keyboardToolbar: {
+    minHeight: 44,
+    paddingHorizontal: spacing.md,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  keyboardDoneButton: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  keyboardDoneLabel: {
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    letterSpacing: 2,
   },
 });
