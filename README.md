@@ -1,4 +1,4 @@
-# OLNs
+# <img src="./assets/OLNsLogo.png" alt="OLNs logo" width="36" align="center" /> OLNs
 
 Short notes over BLE mesh. No server, no cell, no Wi-Fi. Public or
 password-encrypted.
