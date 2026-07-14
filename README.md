@@ -179,7 +179,12 @@ Set `ANDROID_HOME` in your shell or `~/.zshrc` if `adb` isn't found.
 
 ## Roadmap (not built yet)
 
-  encryption does not)
+- **Direction-to-friend indicator** — show the compass direction to a
+  selected peer, not just that they're on the mesh. Phones can't do
+  real BLE direction finding without antenna-array hardware, so this
+  would exchange opt-in GPS coordinates over the mesh, compute a
+  bearing between devices, and combine it with device heading for an
+  arrow. Location would never broadcast by default.
 - **Desktop relay nodes** — macOS/Linux client as a fixed relay
 - **i18n** — language picker on home is stubbed; i18next planned
 - **Note TTL** — stop relaying and drop from storage after expiry
