@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   useFonts,
@@ -11,6 +11,7 @@ import {
   Oxanium_700Bold,
 } from '@expo-google-fonts/oxanium';
 import * as SplashScreen from 'expo-splash-screen';
+import { initI18n } from './src/i18n';
 import { MeshProvider } from './src/mesh/MeshContext';
 import RootNavigator from './src/navigation/AppNavigator';
 import { NavigationContainer } from '@react-navigation/native';
@@ -18,6 +19,7 @@ import { NavigationContainer } from '@react-navigation/native';
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const [i18nReady, setI18nReady] = useState(false);
   const [fontsLoaded] = useFonts({
     IBMPlexMono_400Regular,
     IBMPlexMono_700Bold,
@@ -26,12 +28,16 @@ export default function App() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
+    initI18n().then(() => setI18nReady(true));
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && i18nReady) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, i18nReady]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || !i18nReady) {
     return null;
   }
 

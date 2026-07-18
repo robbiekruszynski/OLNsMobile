@@ -1,0 +1,97 @@
+{
+  "home": {
+    "subtitle": "Rede de Notas Offline",
+    "tagline": "ponto a ponto · retransmissão em malha · sem infraestrutura",
+    "techHint": "BLE · Malha · Offline",
+    "joinMesh": "Entrar na Malha",
+    "howItWorks": "Como Funciona",
+    "language": "Idioma",
+    "howItWorksFooter": "OLNs funciona sem WiFi, dados móveis ou qualquer infraestrutura. Rede em malha pura ponto a ponto.",
+    "steps": {
+      "broadcast": {
+        "title": "Transmitir",
+        "description": "Escreva uma nota e transmita-a na malha. Sem internet — sua mensagem viaja por Bluetooth."
+      },
+      "propagate": {
+        "title": "Propagar",
+        "description": "Dispositivos próximos captam e retransmitem sua nota automaticamente, levando-a mais longe a cada salto."
+      },
+      "persist": {
+        "title": "Persistir",
+        "description": "Notas vivem na rede de forma independente. Mesmo depois que você sair, sua mensagem continua circulando entre os dispositivos da área."
+      },
+      "discover": {
+        "title": "Descobrir",
+        "description": "Abra o feed para ver notas da malha ao seu redor, de pessoas próximas ou mensagens que passaram por muitas mãos até chegar a você."
+      },
+      "encrypt": {
+        "title": "Criptografar",
+        "description": "Adicione uma senha ao compor para bloquear uma nota. Título e corpo são criptografados no dispositivo antes da transmissão — os pares veem um cartão bloqueado até inseri-la. Não há recuperação, compartilhe a senha separadamente."
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "Emergência",
+    "resource": "Recurso",
+    "information": "Informação",
+    "waypoint": "Ponto de Rota"
+  },
+  "compose": {
+    "title": "Compor",
+    "transmissionTitle": "Título da Transmissão",
+    "bodyPlaceholder": "Componha sua transmissão...",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "encryptToggle": "Criptografar esta nota com senha",
+    "passwordsDoNotMatch": "As senhas não coincidem",
+    "broadcastFailed": "Transmissão falhou",
+    "broadcast": "Transmitir",
+    "encrypting": "Criptografando...",
+    "transmitting": "Transmitindo...",
+    "done": "Concluir",
+    "transmitted": "Transmitido"
+  },
+  "feed": {
+    "all": "Tudo",
+    "meshOffline": "Malha Offline",
+    "meshActive": "Malha Ativa",
+    "meshError": "Erro na Malha",
+    "initializing": "Inicializando...",
+    "encrypted": "Criptografado",
+    "meshListening": "A malha está ouvindo",
+    "noTransmissions": "Sem transmissões",
+    "noFilterTransmissions": "Sem transmissões de {{filter}}",
+    "listening": "Ouvindo",
+    "scanning": "Escaneando...",
+    "noteCount_one": "{{count}} nota",
+    "noteCount_other": "{{count}} notas",
+    "peers": "{{count}} pares"
+  },
+  "noteCard": {
+    "origin": "Origem",
+    "type": "Tipo",
+    "broadcast": "Transmissão",
+    "hops": "Saltos",
+    "status": "Status",
+    "signalLost": "Sinal Perdido",
+    "signalActive": "Sinal Ativo",
+    "encryptedMessage": "Mensagem criptografada",
+    "tapToUnlock": "Toque para desbloquear",
+    "transmissionDetail": "Detalhe da transmissão",
+    "detailFooter": "Anônimo · retransmissão em malha · sem infraestrutura",
+    "unlockTransmission": "Desbloquear transmissão",
+    "enterPassword": "Inserir Senha",
+    "incorrectPassword": "Senha incorreta",
+    "cancel": "Cancelar",
+    "decrypting": "Descriptografando...",
+    "unlock": "Desbloquear",
+    "fromAuthor": "De {{id}}",
+    "you": "(você)",
+    "hopOne": "Salto 1",
+    "hopCount": "Salto {{count}}",
+    "hopCountWarning": "Salto {{count}} ⚠",
+    "hopsDirect": "Direto — sem retransmissão",
+    "hopsOneRelay": "1 retransmissão",
+    "hopsManyRelays": "{{count}} retransmissões"
+  }
+}

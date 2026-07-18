@@ -1,0 +1,97 @@
+{
+  "home": {
+    "subtitle": "Offline-Notiznetzwerk",
+    "tagline": "Peer-to-Peer · Mesh-Relais · Keine Infrastruktur",
+    "techHint": "BLE · Mesh · Offline",
+    "joinMesh": "Mesh Beitreten",
+    "howItWorks": "So Funktioniert's",
+    "language": "Sprache",
+    "howItWorksFooter": "OLNs funktioniert ohne WLAN, Mobilfunk oder jede Infrastruktur. Reines Peer-to-Peer-Mesh-Netzwerk.",
+    "steps": {
+      "broadcast": {
+        "title": "Senden",
+        "description": "Notiz schreiben und ins Mesh senden. Kein Internet nötig — Ihre Nachricht reist über Bluetooth."
+      },
+      "propagate": {
+        "title": "Weiterleiten",
+        "description": "Geräte in der Nähe nehmen Ihre Notiz automatisch auf und leiten sie weiter — mit jedem Hop weiter ins Mesh."
+      },
+      "persist": {
+        "title": "Bestehen",
+        "description": "Notizen leben unabhängig im Netzwerk. Auch nach Ihrem Weggang reist Ihre Nachricht weiter durch Geräte in der Umgebung."
+      },
+      "discover": {
+        "title": "Entdecken",
+        "description": "Feed öffnen, um Notizen aus dem Mesh um Sie herum zu sehen — von Nahestehenden oder Nachrichten, die viele Hände durchlaufen haben."
+      },
+      "encrypt": {
+        "title": "Verschlüsseln",
+        "description": "Passwort beim Verfassen setzen, um eine Notiz zu sperren. Titel und Text werden vor dem Senden auf dem Gerät verschlüsselt — Peers sehen eine gesperrte Karte bis zur Eingabe. Keine Wiederherstellung, Passwort separat teilen."
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "Notfall",
+    "resource": "Ressource",
+    "information": "Information",
+    "waypoint": "Wegpunkt"
+  },
+  "compose": {
+    "title": "Verfassen",
+    "transmissionTitle": "Sendungstitel",
+    "bodyPlaceholder": "Sendung verfassen...",
+    "password": "Passwort",
+    "confirmPassword": "Passwort Bestätigen",
+    "encryptToggle": "Diese Notiz mit Passwort verschlüsseln",
+    "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+    "broadcastFailed": "Senden fehlgeschlagen",
+    "broadcast": "Senden",
+    "encrypting": "Verschlüsseln...",
+    "transmitting": "Senden...",
+    "done": "Fertig",
+    "transmitted": "Gesendet"
+  },
+  "feed": {
+    "all": "Alle",
+    "meshOffline": "Mesh Offline",
+    "meshActive": "Mesh Aktiv",
+    "meshError": "Mesh-Fehler",
+    "initializing": "Initialisierung...",
+    "encrypted": "Verschlüsselt",
+    "meshListening": "Mesh hört zu",
+    "noTransmissions": "Keine Sendungen",
+    "noFilterTransmissions": "Keine {{filter}}-Sendungen",
+    "listening": "Lauschen",
+    "scanning": "Scannen...",
+    "noteCount_one": "{{count}} Notiz",
+    "noteCount_other": "{{count}} Notizen",
+    "peers": "{{count}} Peers"
+  },
+  "noteCard": {
+    "origin": "Ursprung",
+    "type": "Typ",
+    "broadcast": "Sendung",
+    "hops": "Hops",
+    "status": "Status",
+    "signalLost": "Signal Verloren",
+    "signalActive": "Signal Aktiv",
+    "encryptedMessage": "Verschlüsselte Nachricht",
+    "tapToUnlock": "Tippen zum Entsperren",
+    "transmissionDetail": "Sendungsdetail",
+    "detailFooter": "Anonym · Mesh-Relais · Keine Infrastruktur",
+    "unlockTransmission": "Sendung entsperren",
+    "enterPassword": "Passwort Eingeben",
+    "incorrectPassword": "Falsches Passwort",
+    "cancel": "Abbrechen",
+    "decrypting": "Entschlüsseln...",
+    "unlock": "Entsperren",
+    "fromAuthor": "Von {{id}}",
+    "you": "(Sie)",
+    "hopOne": "Hop 1",
+    "hopCount": "Hop {{count}}",
+    "hopCountWarning": "Hop {{count}} ⚠",
+    "hopsDirect": "Direkt — kein Relais",
+    "hopsOneRelay": "1 Relais",
+    "hopsManyRelays": "{{count}} Relais"
+  }
+}

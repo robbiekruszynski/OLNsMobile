@@ -1,0 +1,97 @@
+{
+  "home": {
+    "subtitle": "Réseau de Notes Hors Ligne",
+    "tagline": "pair-à-pair · relais maillé · sans infrastructure",
+    "techHint": "BLE · Maillage · Hors Ligne",
+    "joinMesh": "Rejoindre le Maillage",
+    "howItWorks": "Comment Ça Marche",
+    "language": "Langue",
+    "howItWorksFooter": "OLNs fonctionne sans WiFi, réseau mobile ni aucune infrastructure. Réseau maillé pair-à-pair pur.",
+    "steps": {
+      "broadcast": {
+        "title": "Diffuser",
+        "description": "Rédigez une note et diffusez-la sur le maillage. Pas d'internet — votre message voyage via Bluetooth."
+      },
+      "propagate": {
+        "title": "Propager",
+        "description": "Les appareils proches récupèrent et relaient automatiquement votre note, la portant plus loin à chaque saut."
+      },
+      "persist": {
+        "title": "Persister",
+        "description": "Les notes vivent sur le réseau de façon autonome. Même après votre départ, votre message continue de circuler entre les appareils de la zone."
+      },
+      "discover": {
+        "title": "Découvrir",
+        "description": "Ouvrez le fil pour voir les notes du maillage autour de vous, des personnes proches ou des messages ayant voyagé de main en main jusqu'à vous."
+      },
+      "encrypt": {
+        "title": "Chiffrer",
+        "description": "Ajoutez un mot de passe à la rédaction pour verrouiller une note. Titre et corps sont chiffrés sur l'appareil avant diffusion — les pairs voient une carte verrouillée jusqu'à sa saisie. Aucune récupération possible, partagez le mot de passe séparément."
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "Urgence",
+    "resource": "Ressource",
+    "information": "Information",
+    "waypoint": "Point de Passage"
+  },
+  "compose": {
+    "title": "Rédiger",
+    "transmissionTitle": "Titre de Transmission",
+    "bodyPlaceholder": "Rédigez votre transmission...",
+    "password": "Mot de Passe",
+    "confirmPassword": "Confirmer le Mot de Passe",
+    "encryptToggle": "Chiffrer cette note avec un mot de passe",
+    "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+    "broadcastFailed": "Diffusion échouée",
+    "broadcast": "Diffuser",
+    "encrypting": "Chiffrement...",
+    "transmitting": "Transmission...",
+    "done": "Terminé",
+    "transmitted": "Transmis"
+  },
+  "feed": {
+    "all": "Tout",
+    "meshOffline": "Maillage Hors Ligne",
+    "meshActive": "Maillage Actif",
+    "meshError": "Erreur Maillage",
+    "initializing": "Initialisation...",
+    "encrypted": "Chiffré",
+    "meshListening": "Le maillage écoute",
+    "noTransmissions": "Aucune transmission",
+    "noFilterTransmissions": "Aucune transmission {{filter}}",
+    "listening": "À l'écoute",
+    "scanning": "Scan en cours...",
+    "noteCount_one": "{{count}} note",
+    "noteCount_other": "{{count}} notes",
+    "peers": "{{count}} pairs"
+  },
+  "noteCard": {
+    "origin": "Origine",
+    "type": "Type",
+    "broadcast": "Diffusion",
+    "hops": "Sauts",
+    "status": "Statut",
+    "signalLost": "Signal Perdu",
+    "signalActive": "Signal Actif",
+    "encryptedMessage": "Message chiffré",
+    "tapToUnlock": "Appuyer pour déverrouiller",
+    "transmissionDetail": "Détail de transmission",
+    "detailFooter": "Anonyme · relais maillé · sans infrastructure",
+    "unlockTransmission": "Déverrouiller la transmission",
+    "enterPassword": "Saisir le Mot de Passe",
+    "incorrectPassword": "Mot de passe incorrect",
+    "cancel": "Annuler",
+    "decrypting": "Déchiffrement...",
+    "unlock": "Déverrouiller",
+    "fromAuthor": "De {{id}}",
+    "you": "(vous)",
+    "hopOne": "Saut 1",
+    "hopCount": "Saut {{count}}",
+    "hopCountWarning": "Saut {{count}} ⚠",
+    "hopsDirect": "Direct — sans relais",
+    "hopsOneRelay": "1 relais",
+    "hopsManyRelays": "{{count}} relais"
+  }
+}

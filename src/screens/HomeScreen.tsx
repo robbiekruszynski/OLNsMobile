@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   Image,
@@ -14,6 +15,8 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { setAppLanguage } from '../i18n';
+import { getLanguageCode, LANGUAGES } from '../i18n/languages';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/typography';
@@ -50,52 +53,36 @@ const NODE_POSITIONS = [
   { x: 0.5, y: 0.31, isOrigin: true },
 ] as const;
 
-const LANGUAGES = [
-  { code: 'EN', label: 'English' },
-  { code: 'ES', label: 'Español' },
-  { code: 'FR', label: 'Français' },
-  { code: 'PT', label: 'Português' },
-  { code: 'DE', label: 'Deutsch' },
-  { code: 'AR', label: 'العربية' },
-  { code: 'ZH', label: '中文' },
-  { code: 'JA', label: '日本語' },
-] as const;
-
 const HOW_IT_WORKS_STEPS = [
   {
     number: '01',
-    title: 'BROADCAST',
+    titleKey: 'home.steps.broadcast.title',
+    descriptionKey: 'home.steps.broadcast.description',
     color: colors.typeEmergency,
-    description:
-      'Write a note and broadcast it onto the mesh. No internet needed — your message travels over Bluetooth.',
   },
   {
     number: '02',
-    title: 'PROPAGATE',
+    titleKey: 'home.steps.propagate.title',
+    descriptionKey: 'home.steps.propagate.description',
     color: colors.typeInformation,
-    description:
-      'Nearby devices automatically pick up and relay your note, carrying it further across the mesh with each hop.',
   },
   {
     number: '03',
-    title: 'PERSIST',
+    titleKey: 'home.steps.persist.title',
+    descriptionKey: 'home.steps.persist.description',
     color: colors.typeWaypoint,
-    description:
-      'Notes live on the network independently. Even after you leave, your message continues traveling through devices in the area.',
   },
   {
     number: '04',
-    title: 'DISCOVER',
+    titleKey: 'home.steps.discover.title',
+    descriptionKey: 'home.steps.discover.description',
     color: colors.typeResource,
-    description:
-      'Open the feed to see notes from the mesh around you, from people nearby, or messages that have traveled through many hands to reach you.',
   },
   {
     number: '05',
-    title: 'ENCRYPT',
+    titleKey: 'home.steps.encrypt.title',
+    descriptionKey: 'home.steps.encrypt.description',
     color: '#9B6DFF',
-    description:
-      'Add a password while composing to lock a note. Title and body encrypt on-device before broadcast — peers see a locked card until they enter it. There is no recovery, so share the password separately.',
   },
 ] as const;
 
@@ -202,9 +189,10 @@ export default function HomeScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const { t, i18n } = useTranslation();
 
   const [isJoining, setIsJoining] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('EN');
+  const selectedLanguageCode = getLanguageCode(i18n.language);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
   const [activeConnections, setActiveConnections] = useState<ActiveConnection[]>(
@@ -704,7 +692,7 @@ export default function HomeScreen() {
         style={[styles.languageButton, { top: insets.top + 16 }]}
         onPress={() => setShowLanguage(true)}
         hitSlop={8}>
-        <Text style={styles.languageButtonLabel}>{selectedLanguage}</Text>
+        <Text style={styles.languageButtonLabel}>{selectedLanguageCode}</Text>
       </Pressable>
 
       <Pressable
@@ -728,14 +716,12 @@ export default function HomeScreen() {
           />
           <Text style={styles.wordmark}>OLNs</Text>
         </View>
-        <Text style={styles.subtitle}>OFFLINE NOTE NETWORK</Text>
-        <Text style={styles.tagline}>
-          peer-to-peer · mesh relay · no infrastructure
-        </Text>
+        <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
+        <Text style={styles.tagline}>{t('home.tagline')}</Text>
       </View>
 
       <View style={[styles.bottomSection, { bottom: insets.bottom + 48 }]}>
-        <Text style={styles.hint}>BLE · MESH · OFFLINE</Text>
+        <Text style={styles.hint}>{t('home.techHint')}</Text>
         <Animated.View style={{ opacity: buttonOpacity }}>
           <Pressable
             onPress={handleJoinMesh}
@@ -750,7 +736,7 @@ export default function HomeScreen() {
                   styles.joinLabel,
                   pressed && styles.joinLabelPressed,
                 ]}>
-                JOIN MESH
+                {t('home.joinMesh')}
               </Text>
             )}
           </Pressable>
@@ -765,7 +751,7 @@ export default function HomeScreen() {
         <SafeAreaView style={styles.howItWorksModalContainer}>
           <View style={styles.howItWorksModalHeader}>
             <Text style={styles.howItWorksModalHeaderTitle}>
-              HOW IT WORKS
+              {t('home.howItWorks')}
             </Text>
             <Pressable
               onPress={() => setShowHowItWorks(false)}
@@ -793,19 +779,16 @@ export default function HomeScreen() {
                       style={[styles.stepNumber, { color: step.color }]}>
                       {step.number}
                     </Text>
-                    <Text style={styles.stepTitle}>{step.title}</Text>
+                    <Text style={styles.stepTitle}>{t(step.titleKey)}</Text>
                     <Text style={styles.stepDescription}>
-                      {step.description}
+                      {t(step.descriptionKey)}
                     </Text>
                   </View>
                 </View>
               </View>
             ))}
 
-            <Text style={styles.modalFooter}>
-              OLNs works without WiFi, cellular, or any infrastructure. Pure
-              peer-to-peer mesh networking.
-            </Text>
+            <Text style={styles.modalFooter}>{t('home.howItWorksFooter')}</Text>
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -817,7 +800,7 @@ export default function HomeScreen() {
         onRequestClose={() => setShowLanguage(false)}>
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalHeaderTitle}>LANGUAGE</Text>
+            <Text style={styles.modalHeaderTitle}>{t('home.language')}</Text>
             <Pressable
               onPress={() => setShowLanguage(false)}
               hitSlop={8}
@@ -830,13 +813,13 @@ export default function HomeScreen() {
             contentContainerStyle={styles.modalScrollContent}
             showsVerticalScrollIndicator={false}>
             {LANGUAGES.map(language => {
-              const selected = selectedLanguage === language.code;
+              const selected = selectedLanguageCode === language.code;
 
               return (
                 <Pressable
                   key={language.code}
                   onPress={() => {
-                    setSelectedLanguage(language.code);
+                    void setAppLanguage(language.tag);
                     setShowLanguage(false);
                   }}
                   style={styles.languageRow}>
@@ -912,6 +895,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   helpButton: {
     position: 'absolute',
@@ -956,6 +940,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   tagline: {
     marginTop: 8,
@@ -979,6 +964,7 @@ const styles = StyleSheet.create({
     color: colors.textMeta,
     letterSpacing: 3,
     marginBottom: 12,
+    textTransform: 'uppercase',
   },
   joinButton: {
     borderWidth: 1,
@@ -996,6 +982,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.accent,
     letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   joinLabelPressed: {
     color: colors.background,
@@ -1024,6 +1011,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.accent,
     letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   howItWorksModalCloseButton: {
     padding: 12,
@@ -1050,6 +1038,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.accent,
     letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   modalCloseButton: {
     padding: 8,
@@ -1092,6 +1081,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     letterSpacing: 1,
     marginBottom: 10,
+    textTransform: 'uppercase',
   },
   stepDescription: {
     fontFamily: fonts.regular,

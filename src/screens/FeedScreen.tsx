@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   FlatList,
@@ -20,23 +21,24 @@ import { spacing } from '../theme/spacing';
 import type { Note, NoteType } from '../types/Note';
 
 const FILTER_OPTIONS: {
-  label: string;
+  labelKey: string;
   type: NoteType | null;
   encryptedOnly?: boolean;
   color: string;
 }[] = [
-  { label: 'ALL', type: null, color: colors.accent },
-  { type: 'emergency', label: 'EMERGENCY', color: '#E5433D' },
-  { type: 'resource', label: 'RESOURCE', color: '#3DAE6E' },
-  { type: 'information', label: 'INFORMATION', color: '#4FACDE' },
-  { type: 'waypoint', label: 'WAYPOINT', color: '#E5A030' },
-  { label: 'ENCRYPTED', type: null, encryptedOnly: true, color: '#9B6DFF' },
+  { labelKey: 'feed.all', type: null, color: colors.accent },
+  { type: 'emergency', labelKey: 'noteType.emergency', color: '#E5433D' },
+  { type: 'resource', labelKey: 'noteType.resource', color: '#3DAE6E' },
+  { type: 'information', labelKey: 'noteType.information', color: '#4FACDE' },
+  { type: 'waypoint', labelKey: 'noteType.waypoint', color: '#E5A030' },
+  { labelKey: 'feed.encrypted', type: null, encryptedOnly: true, color: '#9B6DFF' },
 ];
 
 const DEFAULT_FILTER_INDEX = 0;
 
 export default function FeedScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const {
     status,
     peerCount,
@@ -79,8 +81,7 @@ export default function FeedScreen() {
     return allNotes;
   }, [activeFilter, allNotes, isEncryptedFilter]);
 
-  const noteCountLabel =
-    filteredNotes.length === 1 ? '1 NOTE' : `${filteredNotes.length} NOTES`;
+  const noteCountLabel = t('feed.noteCount', { count: filteredNotes.length });
 
   const goToIndex = useCallback(
     (nextIndex: number) => {
@@ -216,12 +217,17 @@ export default function FeedScreen() {
 
   const statusLabel =
     status === 'idle'
-      ? 'MESH OFFLINE'
+      ? t('feed.meshOffline')
       : status === 'starting'
-        ? 'INITIALIZING...'
+        ? t('feed.initializing')
         : status === 'running'
-          ? 'MESH ACTIVE'
-          : 'MESH ERROR';
+          ? t('feed.meshActive')
+          : t('feed.meshError');
+
+  const getFilterLabel = useCallback(
+    (option: (typeof FILTER_OPTIONS)[number]) => t(option.labelKey),
+    [t],
+  );
 
   async function handleRefresh() {
     setRefreshing(true);
@@ -251,9 +257,13 @@ export default function FeedScreen() {
               styles.filteredEmptyText,
               { color: `${activeFilterColor}99` },
             ]}>
-            NO {selectedFilter.label} TRANSMISSIONS
+            {t('feed.noFilterTransmissions', {
+              filter: getFilterLabel(selectedFilter),
+            })}
           </Text>
-          <Text style={styles.filteredEmptySubtext}>MESH IS LISTENING</Text>
+          <Text style={styles.filteredEmptySubtext}>
+            {t('feed.meshListening')}
+          </Text>
         </View>
       );
     }
@@ -261,8 +271,8 @@ export default function FeedScreen() {
     if (allNotes.length === 0) {
       return (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>NO TRANSMISSIONS</Text>
-          <Text style={styles.emptySubtext}>MESH IS LISTENING</Text>
+          <Text style={styles.emptyText}>{t('feed.noTransmissions')}</Text>
+          <Text style={styles.emptySubtext}>{t('feed.meshListening')}</Text>
         </View>
       );
     }
@@ -297,7 +307,9 @@ export default function FeedScreen() {
                 styles.peerCount,
                 { opacity: peerCount > 0 ? meshPulseAnim : 1 },
               ]}>
-              {String(peerCount).padStart(2, '0')} PEERS
+              {t('feed.peers', {
+                count: String(peerCount).padStart(2, '0'),
+              })}
             </Animated.Text>
           )}
 
@@ -309,10 +321,10 @@ export default function FeedScreen() {
         {isDiscovering ? (
           <Animated.Text
             style={[styles.discoveryText, { opacity: discoveryPulseAnim }]}>
-            SCANNING...
+            {t('feed.scanning')}
           </Animated.Text>
         ) : (
-          <Text style={styles.discoveryTextMuted}>LISTENING</Text>
+          <Text style={styles.discoveryTextMuted}>{t('feed.listening')}</Text>
         )}
       </View>
 
@@ -340,13 +352,13 @@ export default function FeedScreen() {
                   opacity: labelOpacity,
                 },
               ]}>
-              {selectedFilter.label}
+              {getFilterLabel(selectedFilter)}
             </Animated.Text>
 
             <View style={styles.dotsRow}>
               {FILTER_OPTIONS.map((option, index) => (
                 <Pressable
-                  key={option.label}
+                  key={option.labelKey + (option.type ?? 'all')}
                   onPress={() => goToIndex(index)}
                   hitSlop={8}>
                   <Animated.View
@@ -439,12 +451,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: fonts.regular,
     letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   peerCount: {
     color: colors.hopIndicator,
     fontSize: 11,
     fontFamily: fonts.bold,
     letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   errorDetail: {
     color: colors.textMeta,
@@ -459,6 +473,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 3,
     fontFamily: fonts.regular,
+    textTransform: 'uppercase',
   },
   discoveryTextMuted: {
     marginTop: spacing.sm,
@@ -466,6 +481,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 3,
     fontFamily: fonts.regular,
+    textTransform: 'uppercase',
   },
   filterBar: {
     alignItems: 'center',
@@ -498,6 +514,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     letterSpacing: 3,
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   dotsRow: {
     flexDirection: 'row',
@@ -516,6 +533,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
     paddingHorizontal: 16,
+    textTransform: 'uppercase',
   },
   listContent: {
     paddingHorizontal: spacing.md,
@@ -535,6 +553,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 4,
     fontFamily: fonts.regular,
+    textTransform: 'uppercase',
   },
   emptySubtext: {
     color: colors.textMeta,
@@ -543,12 +562,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     opacity: 0.5,
     marginTop: 8,
+    textTransform: 'uppercase',
   },
   filteredEmptyText: {
     fontFamily: fonts.bold,
     fontSize: 13,
     letterSpacing: 3,
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   filteredEmptySubtext: {
     fontFamily: fonts.regular,
@@ -557,5 +578,6 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
     textAlign: 'center',
     marginTop: 8,
+    textTransform: 'uppercase',
   },
 });

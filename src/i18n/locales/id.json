@@ -1,0 +1,97 @@
+{
+  "home": {
+    "subtitle": "Jaringan Catatan Offline",
+    "tagline": "peer-to-peer · relay mesh · tanpa infrastruktur",
+    "techHint": "BLE · Mesh · Offline",
+    "joinMesh": "Gabung Mesh",
+    "howItWorks": "Cara Kerjanya",
+    "language": "Bahasa",
+    "howItWorksFooter": "OLNs berjalan tanpa WiFi, seluler, atau infrastruktur apapun. Jaringan mesh peer-to-peer murni.",
+    "steps": {
+      "broadcast": {
+        "title": "Siarkan",
+        "description": "Tulis catatan dan siarkan ke mesh. Tanpa internet — pesan Anda menyebar lewat Bluetooth."
+      },
+      "propagate": {
+        "title": "Sebar",
+        "description": "Perangkat terdekat otomatis mengambil dan meneruskan catatan Anda, membawanya lebih jauh di mesh setiap lompatan."
+      },
+      "persist": {
+        "title": "Bertahan",
+        "description": "Catatan hidup di jaringan secara mandiri. Meski Anda pergi, pesan terus berjalan melalui perangkat di sekitar."
+      },
+      "discover": {
+        "title": "Temukan",
+        "description": "Buka feed untuk melihat catatan dari mesh di sekitar Anda, dari orang terdekat, atau pesan yang telah melewati banyak tangan sampai ke Anda."
+      },
+      "encrypt": {
+        "title": "Enkripsi",
+        "description": "Tambahkan kata sandi saat menulis untuk mengunci catatan. Judul dan isi dienkripsi di perangkat sebelum disiarkan — rekan melihat kartu terkunci sampai kata sandi dimasukkan. Tidak ada pemulihan, bagikan kata sandi secara terpisah."
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "Darurat",
+    "resource": "Sumber Daya",
+    "information": "Informasi",
+    "waypoint": "Titik Rute"
+  },
+  "compose": {
+    "title": "Tulis",
+    "transmissionTitle": "Judul Transmisi",
+    "bodyPlaceholder": "Tulis transmisi Anda...",
+    "password": "Kata Sandi",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "encryptToggle": "Enkripsi catatan ini dengan kata sandi",
+    "passwordsDoNotMatch": "Kata sandi tidak cocok",
+    "broadcastFailed": "Siaran gagal",
+    "broadcast": "Siarkan",
+    "encrypting": "Mengenkripsi...",
+    "transmitting": "Mengirim...",
+    "done": "Selesai",
+    "transmitted": "Tersiarkan"
+  },
+  "feed": {
+    "all": "Semua",
+    "meshOffline": "Mesh Offline",
+    "meshActive": "Mesh Aktif",
+    "meshError": "Mesh Error",
+    "initializing": "Menginisialisasi...",
+    "encrypted": "Terenkripsi",
+    "meshListening": "Mesh sedang mendengarkan",
+    "noTransmissions": "Tidak ada transmisi",
+    "noFilterTransmissions": "Tidak ada transmisi {{filter}}",
+    "listening": "Mendengarkan",
+    "scanning": "Memindai...",
+    "noteCount_one": "{{count}} catatan",
+    "noteCount_other": "{{count}} catatan",
+    "peers": "{{count}} rekan"
+  },
+  "noteCard": {
+    "origin": "Asal",
+    "type": "Tipe",
+    "broadcast": "Siaran",
+    "hops": "Lompatan",
+    "status": "Status",
+    "signalLost": "Sinyal Hilang",
+    "signalActive": "Sinyal Aktif",
+    "encryptedMessage": "Pesan terenkripsi",
+    "tapToUnlock": "Ketuk untuk buka kunci",
+    "transmissionDetail": "Detail transmisi",
+    "detailFooter": "Anonim · relay mesh · tanpa infrastruktur",
+    "unlockTransmission": "Buka kunci transmisi",
+    "enterPassword": "Masukkan Kata Sandi",
+    "incorrectPassword": "Kata sandi salah",
+    "cancel": "Batal",
+    "decrypting": "Mendekripsi...",
+    "unlock": "Buka Kunci",
+    "fromAuthor": "Dari {{id}}",
+    "you": "(Anda)",
+    "hopOne": "Lompatan 1",
+    "hopCount": "Lompatan {{count}}",
+    "hopCountWarning": "Lompatan {{count}} ⚠",
+    "hopsDirect": "Langsung — tanpa relay",
+    "hopsOneRelay": "1 relay",
+    "hopsManyRelays": "{{count}} relay"
+  }
+}

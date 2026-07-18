@@ -1,0 +1,97 @@
+{
+  "home": {
+    "subtitle": "Red de Notas Sin Conexión",
+    "tagline": "entre pares · retransmisión en malla · sin infraestructura",
+    "techHint": "BLE · Malla · Sin Conexión",
+    "joinMesh": "Unirse a la Malla",
+    "howItWorks": "Cómo Funciona",
+    "language": "Idioma",
+    "howItWorksFooter": "OLNs funciona sin WiFi, datos móviles ni ninguna infraestructura. Red en malla pura entre pares.",
+    "steps": {
+      "broadcast": {
+        "title": "Emitir",
+        "description": "Escribe una nota y emítela en la malla. Sin internet — tu mensaje viaja por Bluetooth."
+      },
+      "propagate": {
+        "title": "Propagar",
+        "description": "Los dispositivos cercanos recogen y retransmiten tu nota automáticamente, llevándola más lejos con cada salto."
+      },
+      "persist": {
+        "title": "Persistir",
+        "description": "Las notas viven en la red de forma independiente. Aunque te vayas, tu mensaje sigue viajando entre los dispositivos del área."
+      },
+      "discover": {
+        "title": "Descubrir",
+        "description": "Abre el feed para ver notas de la malla a tu alrededor, de personas cercanas o mensajes que han pasado por muchas manos hasta llegarte."
+      },
+      "encrypt": {
+        "title": "Cifrar",
+        "description": "Añade una contraseña al redactar para bloquear una nota. Título y cuerpo se cifran en el dispositivo antes de emitir — los demás ven una tarjeta bloqueada hasta introducirla. No hay recuperación, comparte la contraseña por otro canal."
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "Emergencia",
+    "resource": "Recurso",
+    "information": "Información",
+    "waypoint": "Punto de Ruta"
+  },
+  "compose": {
+    "title": "Redactar",
+    "transmissionTitle": "Título de Transmisión",
+    "bodyPlaceholder": "Redacta tu transmisión...",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "encryptToggle": "Cifrar esta nota con contraseña",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "broadcastFailed": "Emisión fallida",
+    "broadcast": "Emitir",
+    "encrypting": "Cifrando...",
+    "transmitting": "Transmitiendo...",
+    "done": "Listo",
+    "transmitted": "Transmitido"
+  },
+  "feed": {
+    "all": "Todo",
+    "meshOffline": "Malla Desconectada",
+    "meshActive": "Malla Activa",
+    "meshError": "Error de Malla",
+    "initializing": "Inicializando...",
+    "encrypted": "Cifrado",
+    "meshListening": "La malla está escuchando",
+    "noTransmissions": "Sin transmisiones",
+    "noFilterTransmissions": "Sin transmisiones de {{filter}}",
+    "listening": "Escuchando",
+    "scanning": "Escaneando...",
+    "noteCount_one": "{{count}} nota",
+    "noteCount_other": "{{count}} notas",
+    "peers": "{{count}} pares"
+  },
+  "noteCard": {
+    "origin": "Origen",
+    "type": "Tipo",
+    "broadcast": "Emisión",
+    "hops": "Saltos",
+    "status": "Estado",
+    "signalLost": "Señal Perdida",
+    "signalActive": "Señal Activa",
+    "encryptedMessage": "Mensaje cifrado",
+    "tapToUnlock": "Toca para desbloquear",
+    "transmissionDetail": "Detalle de transmisión",
+    "detailFooter": "Anónimo · retransmisión en malla · sin infraestructura",
+    "unlockTransmission": "Desbloquear transmisión",
+    "enterPassword": "Introducir Contraseña",
+    "incorrectPassword": "Contraseña incorrecta",
+    "cancel": "Cancelar",
+    "decrypting": "Descifrando...",
+    "unlock": "Desbloquear",
+    "fromAuthor": "De {{id}}",
+    "you": "(tú)",
+    "hopOne": "Salto 1",
+    "hopCount": "Salto {{count}}",
+    "hopCountWarning": "Salto {{count}} ⚠",
+    "hopsDirect": "Directo — sin retransmisión",
+    "hopsOneRelay": "1 retransmisión",
+    "hopsManyRelays": "{{count}} retransmisiones"
+  }
+}
