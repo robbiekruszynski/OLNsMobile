@@ -576,6 +576,23 @@ export function MeshProvider({ children }: { children: ReactNode }) {
           appId: 'olns',
           userId: currentUserId,
           newArchEnabled: false,
+          // DEBUG: 0.14.0 introduced this kill switch for the compact binary
+          // wire codec on mesh-hop framing (defaults true). Forcing it off to
+          // test whether the new codec is why fragments arrive over BLE but
+          // never reassemble into a usable service_discovered/note payload
+          // post-bump. Revert once we confirm/deny.
+          binaryWireEnabled: false,
+          // DEBUG: 0.14.0 also flipped requireEncryption's default from
+          // false to true (fail-closed: sends fail/drop instead of going
+          // plaintext if no MLS session is established). Native config log
+          // confirms requireEncryption is true even though we never set it.
+          // Disabling the whole encryption subsystem to test whether a
+          // stuck/never-completing MLS handshake between these two devices
+          // is what's silently blocking the note payload while low-level BLE
+          // fragments keep flowing. Revert once we confirm/deny.
+          encryption: {
+            enabled: false,
+          },
           transports: {
             ble: { enabled: true },
           },
