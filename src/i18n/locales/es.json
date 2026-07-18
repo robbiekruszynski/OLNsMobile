@@ -6,6 +6,7 @@
     "joinMesh": "Unirse a la Malla",
     "howItWorks": "Cómo Funciona",
     "language": "Idioma",
+    "restartingLanguage": "Reiniciando para aplicar el idioma",
     "howItWorksFooter": "OLNs funciona sin WiFi, datos móviles ni ninguna infraestructura. Red en malla pura entre pares.",
     "steps": {
       "broadcast": {

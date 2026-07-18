@@ -1,97 +1,98 @@
 {
   "home": {
-    "subtitle": "Offline Note Network",
-    "tagline": "peer-to-peer · mesh relay · no infrastructure",
-    "techHint": "BLE · Mesh · Offline",
-    "joinMesh": "Join Mesh",
-    "howItWorks": "How It Works",
-    "language": "Language",
-    "howItWorksFooter": "OLNs works without WiFi, cellular, or any infrastructure. Pure peer-to-peer mesh networking.",
+    "subtitle": "آف لائن نوٹ نیٹ ورک",
+    "tagline": "پیئر ٹو پیئر · میش ریلے · کوئی انفراسٹرکچر نہیں",
+    "techHint": "BLE · میش · آف لائن",
+    "joinMesh": "میش میں شامل ہوں",
+    "howItWorks": "یہ کیسے کام کرتا ہے",
+    "language": "زبان",
+    "restartingLanguage": "زبان لاگو کرنے کے لیے دوبارہ شروع ہو رہا ہے",
+    "howItWorksFooter": "OLNs بغیر WiFi، موبائل ڈیٹا یا کسی انفراسٹرکچر کے چلتا ہے۔ خالص پیئر ٹو پیئر میش نیٹ ورک۔",
     "steps": {
       "broadcast": {
-        "title": "Broadcast",
-        "description": "Write a note and broadcast it onto the mesh. No internet needed — your message travels over Bluetooth."
+        "title": "نشریہ",
+        "description": "نوٹ لکھیں اور میش پر نشر کریں۔ انٹرنیٹ نہیں چاہیے — آپ کا پیغام Bluetooth سے سفر کرتا ہے۔"
       },
       "propagate": {
-        "title": "Propagate",
-        "description": "Nearby devices automatically pick up and relay your note, carrying it further across the mesh with each hop."
+        "title": "پھیلاؤ",
+        "description": "قریبی آلات خودکار طور پر آپ کا نوٹ اٹھاتے اور آگے بھیجتے ہیں، ہر ہاپ پر مزید دور لے جاتے ہیں۔"
       },
       "persist": {
-        "title": "Persist",
-        "description": "Notes live on the network independently. Even after you leave, your message continues traveling through devices in the area."
+        "title": "برقرار",
+        "description": "نوٹس نیٹ ورک پر آزادانہ رہتے ہیں۔ آپ کے جانے کے بعد بھی، پیغام علاقے کے آلات سے گزرتا رہتا ہے۔"
       },
       "discover": {
-        "title": "Discover",
-        "description": "Open the feed to see notes from the mesh around you, from people nearby, or messages that have traveled through many hands to reach you."
+        "title": "دریافت",
+        "description": "فیڈ کھولیں اور اردگرد کے میش، قریبی لوگوں یا کئی ہاتھوں سے آپ تک پہنچے پیغامات دیکھیں۔"
       },
       "encrypt": {
-        "title": "Encrypt",
-        "description": "Add a password while composing to lock a note. Title and body encrypt on-device before broadcast — peers see a locked card until they enter it. There is no recovery, so share the password separately."
+        "title": "خفیہ کاری",
+        "description": "لکھتے وقت پاس ورڈ سے نوٹ لاک کریں۔ نشریہ سے پہلے عنوان اور متن آلے پر خفیہ ہوتے ہیں — پاس ورڈ دینے تک پیئرز کو لاک کارڈ نظر آتا ہے۔ بازیابی نہیں، پاس ورڈ الگ سے شیئر کریں۔"
       }
     }
   },
   "noteType": {
-    "emergency": "Emergency",
-    "resource": "Resource",
-    "information": "Information",
-    "waypoint": "Waypoint"
+    "emergency": "ایمرجنسی",
+    "resource": "وسیلہ",
+    "information": "معلومات",
+    "waypoint": "راستہ نشان"
   },
   "compose": {
-    "title": "Compose",
-    "transmissionTitle": "Transmission Title",
-    "bodyPlaceholder": "Compose your transmission...",
-    "password": "Password",
-    "confirmPassword": "Confirm Password",
-    "encryptToggle": "Encrypt this note with a password",
-    "passwordsDoNotMatch": "Passwords do not match",
-    "broadcastFailed": "Broadcast failed",
-    "broadcast": "Broadcast",
-    "encrypting": "Encrypting...",
-    "transmitting": "Transmitting...",
-    "done": "Done",
-    "transmitted": "Transmitted"
+    "title": "تحریر",
+    "transmissionTitle": "نشریہ عنوان",
+    "bodyPlaceholder": "اپنا نشریہ لکھیں...",
+    "password": "پاس ورڈ",
+    "confirmPassword": "پاس ورڈ کی تصدیق",
+    "encryptToggle": "اس نوٹ کو پاس ورڈ سے خفیہ کریں",
+    "passwordsDoNotMatch": "پاس ورڈ میل نہیں کھاتے",
+    "broadcastFailed": "نشریہ ناکام",
+    "broadcast": "نشر کریں",
+    "encrypting": "خفیہ کیا جا رہا ہے...",
+    "transmitting": "نشر ہو رہا ہے...",
+    "done": "مکمل",
+    "transmitted": "نشر شدہ"
   },
   "feed": {
-    "all": "All",
-    "meshOffline": "Mesh Offline",
-    "meshActive": "Mesh Active",
-    "meshError": "Mesh Error",
-    "initializing": "Initializing...",
-    "encrypted": "Encrypted",
-    "meshListening": "Mesh is listening",
-    "noTransmissions": "No transmissions",
-    "noFilterTransmissions": "No {{filter}} transmissions",
-    "listening": "Listening",
-    "scanning": "Scanning...",
-    "noteCount_one": "{{count}} note",
-    "noteCount_other": "{{count}} notes",
-    "peers": "{{count}} peers"
+    "all": "سب",
+    "meshOffline": "میش آف لائن",
+    "meshActive": "میش فعال",
+    "meshError": "میش خرابی",
+    "initializing": "شروع ہو رہا ہے...",
+    "encrypted": "خفیہ شدہ",
+    "meshListening": "میش سن رہا ہے",
+    "noTransmissions": "کوئی نشریات نہیں",
+    "noFilterTransmissions": "کوئی {{filter}} نشریات نہیں",
+    "listening": "سن رہا ہے",
+    "scanning": "اسکین ہو رہا ہے...",
+    "noteCount_one": "{{count}} نوٹ",
+    "noteCount_other": "{{count}} نوٹ",
+    "peers": "{{count}} پیئر"
   },
   "noteCard": {
-    "origin": "Origin",
-    "type": "Type",
-    "broadcast": "Broadcast",
-    "hops": "Hops",
-    "status": "Status",
-    "signalLost": "Signal Lost",
-    "signalActive": "Signal Active",
-    "encryptedMessage": "Encrypted message",
-    "tapToUnlock": "Tap to unlock",
-    "transmissionDetail": "Transmission detail",
-    "detailFooter": "Anonymous · mesh relay · no infrastructure",
-    "unlockTransmission": "Unlock transmission",
-    "enterPassword": "Enter Password",
-    "incorrectPassword": "Incorrect password",
-    "cancel": "Cancel",
-    "decrypting": "Decrypting...",
-    "unlock": "Unlock",
-    "fromAuthor": "From {{id}}",
-    "you": "(you)",
-    "hopOne": "Hop 1",
-    "hopCount": "Hop {{count}}",
-    "hopCountWarning": "Hop {{count}} ⚠",
-    "hopsDirect": "Direct — no relay",
-    "hopsOneRelay": "1 relay",
-    "hopsManyRelays": "{{count}} relays"
+    "origin": "ماخذ",
+    "type": "قسم",
+    "broadcast": "نشریہ",
+    "hops": "ہاپ",
+    "status": "حالت",
+    "signalLost": "سگنل کھو گیا",
+    "signalActive": "سگنل فعال",
+    "encryptedMessage": "خفیہ پیغام",
+    "tapToUnlock": "ان لاک کے لیے ٹیپ کریں",
+    "transmissionDetail": "نشریہ تفصیل",
+    "detailFooter": "گمنام · میش ریلے · کوئی انفراسٹرکچر نہیں",
+    "unlockTransmission": "نشریہ ان لاک کریں",
+    "enterPassword": "پاس ورڈ درج کریں",
+    "incorrectPassword": "غلط پاس ورڈ",
+    "cancel": "منسوخ",
+    "decrypting": "ڈکرپٹ ہو رہا ہے...",
+    "unlock": "ان لاک",
+    "fromAuthor": "{{id}} سے",
+    "you": "(آپ)",
+    "hopOne": "ہاپ 1",
+    "hopCount": "ہاپ {{count}}",
+    "hopCountWarning": "ہاپ {{count}} ⚠",
+    "hopsDirect": "براہ راست — کوئی ریلے نہیں",
+    "hopsOneRelay": "1 ریلے",
+    "hopsManyRelays": "{{count}} ریلے"
   }
 }

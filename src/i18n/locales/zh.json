@@ -1,97 +1,97 @@
 {
   "home": {
-    "subtitle": "Offline Note Network",
-    "tagline": "peer-to-peer · mesh relay · no infrastructure",
-    "techHint": "BLE · Mesh · Offline",
-    "joinMesh": "Join Mesh",
-    "howItWorks": "How It Works",
-    "language": "Language",
-    "howItWorksFooter": "OLNs works without WiFi, cellular, or any infrastructure. Pure peer-to-peer mesh networking.",
+    "subtitle": "离线笔记网络",
+    "tagline": "点对点 · 网状中继 · 无基础设施",
+    "techHint": "BLE · 网状 · 离线",
+    "joinMesh": "加入网状网络",
+    "howItWorks": "工作原理",
+    "language": "语言",
+    "restartingLanguage": "正在重启以应用语言",
+    "howItWorksFooter": "OLNs 无需 WiFi、蜂窝网络或任何基础设施。纯点对点网状网络。",
     "steps": {
       "broadcast": {
-        "title": "Broadcast",
-        "description": "Write a note and broadcast it onto the mesh. No internet needed — your message travels over Bluetooth."
+        "title": "广播",
+        "description": "撰写笔记并广播至网状网络。无需互联网——消息通过蓝牙传输。"
       },
       "propagate": {
-        "title": "Propagate",
-        "description": "Nearby devices automatically pick up and relay your note, carrying it further across the mesh with each hop."
+        "title": "传播",
+        "description": "附近设备自动接收并转发你的笔记，每一跳都将消息传得更远。"
       },
       "persist": {
-        "title": "Persist",
-        "description": "Notes live on the network independently. Even after you leave, your message continues traveling through devices in the area."
+        "title": "持久",
+        "description": "笔记独立存活在网络中。即使你离开，消息仍会继续在区域内设备间流转。"
       },
       "discover": {
-        "title": "Discover",
-        "description": "Open the feed to see notes from the mesh around you, from people nearby, or messages that have traveled through many hands to reach you."
+        "title": "发现",
+        "description": "打开信息流，查看周围网状网络、附近人员或经多手传递抵达你的消息。"
       },
       "encrypt": {
-        "title": "Encrypt",
-        "description": "Add a password while composing to lock a note. Title and body encrypt on-device before broadcast — peers see a locked card until they enter it. There is no recovery, so share the password separately."
+        "title": "加密",
+        "description": "撰写时设置密码以锁定笔记。标题与正文在广播前于设备端加密——节点看到锁定卡片直至输入密码。无法恢复，请另行分享密码。"
       }
     }
   },
   "noteType": {
-    "emergency": "Emergency",
-    "resource": "Resource",
-    "information": "Information",
-    "waypoint": "Waypoint"
+    "emergency": "紧急",
+    "resource": "资源",
+    "information": "情报",
+    "waypoint": "路标"
   },
   "compose": {
-    "title": "Compose",
-    "transmissionTitle": "Transmission Title",
-    "bodyPlaceholder": "Compose your transmission...",
-    "password": "Password",
-    "confirmPassword": "Confirm Password",
-    "encryptToggle": "Encrypt this note with a password",
-    "passwordsDoNotMatch": "Passwords do not match",
-    "broadcastFailed": "Broadcast failed",
-    "broadcast": "Broadcast",
-    "encrypting": "Encrypting...",
-    "transmitting": "Transmitting...",
-    "done": "Done",
-    "transmitted": "Transmitted"
+    "title": "撰写",
+    "transmissionTitle": "传输标题",
+    "bodyPlaceholder": "撰写你的传输内容...",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "encryptToggle": "使用密码加密此笔记",
+    "passwordsDoNotMatch": "密码不匹配",
+    "broadcastFailed": "广播失败",
+    "broadcast": "广播",
+    "encrypting": "加密中...",
+    "transmitting": "传输中...",
+    "done": "完成",
+    "transmitted": "已传输"
   },
   "feed": {
-    "all": "All",
-    "meshOffline": "Mesh Offline",
-    "meshActive": "Mesh Active",
-    "meshError": "Mesh Error",
-    "initializing": "Initializing...",
-    "encrypted": "Encrypted",
-    "meshListening": "Mesh is listening",
-    "noTransmissions": "No transmissions",
-    "noFilterTransmissions": "No {{filter}} transmissions",
-    "listening": "Listening",
-    "scanning": "Scanning...",
-    "noteCount_one": "{{count}} note",
-    "noteCount_other": "{{count}} notes",
-    "peers": "{{count}} peers"
+    "all": "全部",
+    "meshOffline": "网状离线",
+    "meshActive": "网状活跃",
+    "meshError": "网状错误",
+    "initializing": "初始化中...",
+    "encrypted": "已加密",
+    "meshListening": "网状网络监听中",
+    "noTransmissions": "无传输",
+    "noFilterTransmissions": "无 {{filter}} 传输",
+    "listening": "监听中",
+    "scanning": "扫描中...",
+    "noteCount_other": "{{count}} 条笔记",
+    "peers": "{{count}} 节点"
   },
   "noteCard": {
-    "origin": "Origin",
-    "type": "Type",
-    "broadcast": "Broadcast",
-    "hops": "Hops",
-    "status": "Status",
-    "signalLost": "Signal Lost",
-    "signalActive": "Signal Active",
-    "encryptedMessage": "Encrypted message",
-    "tapToUnlock": "Tap to unlock",
-    "transmissionDetail": "Transmission detail",
-    "detailFooter": "Anonymous · mesh relay · no infrastructure",
-    "unlockTransmission": "Unlock transmission",
-    "enterPassword": "Enter Password",
-    "incorrectPassword": "Incorrect password",
-    "cancel": "Cancel",
-    "decrypting": "Decrypting...",
-    "unlock": "Unlock",
-    "fromAuthor": "From {{id}}",
-    "you": "(you)",
-    "hopOne": "Hop 1",
-    "hopCount": "Hop {{count}}",
-    "hopCountWarning": "Hop {{count}} ⚠",
-    "hopsDirect": "Direct — no relay",
-    "hopsOneRelay": "1 relay",
-    "hopsManyRelays": "{{count}} relays"
+    "origin": "源点",
+    "type": "类型",
+    "broadcast": "广播",
+    "hops": "跳数",
+    "status": "状态",
+    "signalLost": "信号丢失",
+    "signalActive": "信号活跃",
+    "encryptedMessage": "加密消息",
+    "tapToUnlock": "点击解锁",
+    "transmissionDetail": "传输详情",
+    "detailFooter": "匿名 · 网状中继 · 无基础设施",
+    "unlockTransmission": "解锁传输",
+    "enterPassword": "输入密码",
+    "incorrectPassword": "密码错误",
+    "cancel": "取消",
+    "decrypting": "解密中...",
+    "unlock": "解锁",
+    "fromAuthor": "来自 {{id}}",
+    "you": "（你）",
+    "hopOne": "跳 1",
+    "hopCount": "跳 {{count}}",
+    "hopCountWarning": "跳 {{count}} ⚠",
+    "hopsDirect": "直连 — 无中继",
+    "hopsOneRelay": "1 次中继",
+    "hopsManyRelays": "{{count}} 次中继"
   }
 }

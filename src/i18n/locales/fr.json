@@ -6,6 +6,7 @@
     "joinMesh": "Rejoindre le Maillage",
     "howItWorks": "Comment Ça Marche",
     "language": "Langue",
+    "restartingLanguage": "Redémarrage pour appliquer la langue",
     "howItWorksFooter": "OLNs fonctionne sans WiFi, réseau mobile ni aucune infrastructure. Réseau maillé pair-à-pair pur.",
     "steps": {
       "broadcast": {

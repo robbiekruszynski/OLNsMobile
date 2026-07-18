@@ -6,6 +6,7 @@
     "joinMesh": "Gabung Mesh",
     "howItWorks": "Cara Kerjanya",
     "language": "Bahasa",
+    "restartingLanguage": "Memulai ulang untuk menerapkan bahasa",
     "howItWorksFooter": "OLNs berjalan tanpa WiFi, seluler, atau infrastruktur apapun. Jaringan mesh peer-to-peer murni.",
     "steps": {
       "broadcast": {

@@ -25,7 +25,7 @@ import { useMesh } from '../mesh/MeshContext';
 import type { RootTabParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 import type { Note, NoteType } from '../types/Note';
 import { ENCRYPTED_NOTE_TITLE } from '../types/Note';
 
@@ -47,6 +47,8 @@ export default function ComposeScreen() {
   const navigation = useNavigation<BottomTabNavigationProp<RootTabParamList>>();
   const { broadcastNote } = useMesh();
   const { t } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
 
   const [selectedIndex, setSelectedIndex] = useState(DEFAULT_TYPE_INDEX);
   const [title, setTitle] = useState('');
@@ -639,7 +641,8 @@ export default function ComposeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
@@ -756,7 +759,7 @@ const styles = StyleSheet.create({
   },
   bodyCount: {
     position: 'absolute',
-    right: 0,
+    end: 0,
     bottom: 0,
     fontFamily: fonts.regular,
     fontSize: 10,
@@ -881,4 +884,5 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
-});
+  });
+}

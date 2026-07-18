@@ -15,11 +15,11 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { setAppLanguage } from '../i18n';
+import { applyLanguageChange } from '../i18n';
 import { getLanguageCode, LANGUAGES } from '../i18n/languages';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 
 const NODE_COUNT = 12;
 const NODE_DIAMETER = 6;
@@ -86,6 +86,51 @@ const HOW_IT_WORKS_STEPS = [
   },
 ] as const;
 
+const meshStyles = StyleSheet.create({
+  meshCanvas: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+  },
+  connectionLine: {
+    position: 'absolute',
+    height: 0.5,
+    backgroundColor: colors.accent,
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: PULSE_END_RADIUS * 2,
+    height: PULSE_END_RADIUS * 2,
+    borderRadius: PULSE_END_RADIUS,
+    borderWidth: 1,
+    borderColor: colors.hopIndicator,
+    backgroundColor: 'transparent',
+  },
+  birthRing: {
+    position: 'absolute',
+    width: BIRTH_RING_END_RADIUS * 2,
+    height: BIRTH_RING_END_RADIUS * 2,
+    borderRadius: BIRTH_RING_END_RADIUS,
+    borderWidth: 0.8,
+    borderColor: colors.accent,
+    backgroundColor: 'transparent',
+  },
+  packet: {
+    position: 'absolute',
+    width: PACKET_DIAMETER,
+    height: PACKET_DIAMETER,
+    borderRadius: PACKET_RADIUS,
+    backgroundColor: colors.accent,
+  },
+  node: {
+    position: 'absolute',
+    backgroundColor: colors.accent,
+  },
+  originNode: {
+    backgroundColor: colors.hopIndicator,
+  },
+});
+
 interface NodeData {
   id: number;
   x: number;
@@ -142,7 +187,7 @@ function DynamicConnectionLine({
   return (
     <Animated.View
       style={[
-        styles.connectionLine,
+        meshStyles.connectionLine,
         {
           left: midX - length / 2,
           top: midY - 0.25,
@@ -170,7 +215,7 @@ function DataPacketDot({
   return (
     <Animated.View
       style={[
-        styles.packet,
+        meshStyles.packet,
         {
           left: from.x - PACKET_RADIUS,
           top: from.y - PACKET_RADIUS,
@@ -190,8 +235,11 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const { t, i18n } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
 
   const [isJoining, setIsJoining] = useState(false);
+  const [isRestartingLanguage, setIsRestartingLanguage] = useState(false);
   const selectedLanguageCode = getLanguageCode(i18n.language);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
@@ -616,7 +664,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.meshCanvas, { width, height }]}>
+      <View style={[meshStyles.meshCanvas, { width, height }]}>
         {activeConnections.map(connection => (
           <DynamicConnectionLine
             key={connection.id}
@@ -629,7 +677,7 @@ export default function HomeScreen() {
 
         <Animated.View
           style={[
-            styles.pulseRing,
+            meshStyles.pulseRing,
             {
               left: originNode.x - PULSE_END_RADIUS,
               top: originNode.y - PULSE_END_RADIUS,
@@ -652,7 +700,7 @@ export default function HomeScreen() {
             <Animated.View
               key={`birth-ring-${node.id}`}
               style={[
-                styles.birthRing,
+                meshStyles.birthRing,
                 {
                   left: node.x - BIRTH_RING_END_RADIUS,
                   top: node.y - BIRTH_RING_END_RADIUS,
@@ -672,8 +720,8 @@ export default function HomeScreen() {
             <Animated.View
               key={node.id}
               style={[
-                styles.node,
-                node.isOrigin && styles.originNode,
+                meshStyles.node,
+                node.isOrigin && meshStyles.originNode,
                 {
                   left: node.x - nodeRadius,
                   top: node.y - nodeRadius,
@@ -819,8 +867,22 @@ export default function HomeScreen() {
                 <Pressable
                   key={language.code}
                   onPress={() => {
-                    void setAppLanguage(language.tag);
-                    setShowLanguage(false);
+                    if (language.tag === i18n.language) {
+                      setShowLanguage(false);
+                      return;
+                    }
+
+                    setIsRestartingLanguage(true);
+                    void applyLanguageChange(language.tag)
+                      .then(result => {
+                        if (result === 'applied') {
+                          setIsRestartingLanguage(false);
+                          setShowLanguage(false);
+                        }
+                      })
+                      .catch(() => {
+                        setIsRestartingLanguage(false);
+                      });
                   }}
                   style={styles.languageRow}>
                   <Text style={styles.languageCode}>{language.code}</Text>
@@ -832,56 +894,21 @@ export default function HomeScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {isRestartingLanguage && (
+        <View style={styles.restartingOverlay}>
+          <Text style={styles.restartingText}>{t('home.restartingLanguage')}</Text>
+        </View>
+      )}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  meshCanvas: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  connectionLine: {
-    position: 'absolute',
-    height: 0.5,
-    backgroundColor: colors.accent,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: PULSE_END_RADIUS * 2,
-    height: PULSE_END_RADIUS * 2,
-    borderRadius: PULSE_END_RADIUS,
-    borderWidth: 1,
-    borderColor: colors.hopIndicator,
-    backgroundColor: 'transparent',
-  },
-  birthRing: {
-    position: 'absolute',
-    width: BIRTH_RING_END_RADIUS * 2,
-    height: BIRTH_RING_END_RADIUS * 2,
-    borderRadius: BIRTH_RING_END_RADIUS,
-    borderWidth: 0.8,
-    borderColor: colors.accent,
-    backgroundColor: 'transparent',
-  },
-  packet: {
-    position: 'absolute',
-    width: PACKET_DIAMETER,
-    height: PACKET_DIAMETER,
-    borderRadius: PACKET_RADIUS,
-    backgroundColor: colors.accent,
-  },
-  node: {
-    position: 'absolute',
-    backgroundColor: colors.accent,
-  },
-  originNode: {
-    backgroundColor: colors.hopIndicator,
   },
   languageButton: {
     position: 'absolute',
@@ -1059,7 +1086,7 @@ const styles = StyleSheet.create({
   stepAccentBar: {
     width: 3,
     borderRadius: 2,
-    marginRight: 16,
+    marginEnd: 16,
   },
   stepContent: {
     flex: 1,
@@ -1125,4 +1152,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.hopIndicator,
   },
-});
+  restartingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+    paddingHorizontal: 32,
+  },
+  restartingText: {
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    color: colors.textSecondary,
+    letterSpacing: 2,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  });
+}

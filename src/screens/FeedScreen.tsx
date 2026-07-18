@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NoteCard from '../components/NoteCard';
 import { useMesh } from '../mesh/MeshContext';
 import { colors } from '../theme/colors';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 import { spacing } from '../theme/spacing';
 import type { Note, NoteType } from '../types/Note';
 
@@ -39,6 +39,8 @@ const DEFAULT_FILTER_INDEX = 0;
 export default function FeedScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
   const {
     status,
     peerCount,
@@ -427,7 +429,8 @@ export default function FeedScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -580,4 +583,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textTransform: 'uppercase',
   },
-});
+  });
+}

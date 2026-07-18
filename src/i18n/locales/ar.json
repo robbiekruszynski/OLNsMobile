@@ -1,97 +1,102 @@
 {
   "home": {
-    "subtitle": "Offline Note Network",
-    "tagline": "peer-to-peer · mesh relay · no infrastructure",
-    "techHint": "BLE · Mesh · Offline",
-    "joinMesh": "Join Mesh",
-    "howItWorks": "How It Works",
-    "language": "Language",
-    "howItWorksFooter": "OLNs works without WiFi, cellular, or any infrastructure. Pure peer-to-peer mesh networking.",
+    "subtitle": "شبكة الملاحظات دون اتصال",
+    "tagline": "نظير إلى نظير · ترحيل شبكي · بلا بنية تحتية",
+    "techHint": "BLE · شبكة · دون اتصال",
+    "joinMesh": "انضم للشبكة",
+    "howItWorks": "كيف يعمل",
+    "language": "اللغة",
+    "restartingLanguage": "إعادة التشغيل لتطبيق اللغة",
+    "howItWorksFooter": "OLNs يعمل بدون WiFi أو شبكة جوّالة أو أي بنية تحتية. شبكة نظير إلى نظير خالصة.",
     "steps": {
       "broadcast": {
-        "title": "Broadcast",
-        "description": "Write a note and broadcast it onto the mesh. No internet needed — your message travels over Bluetooth."
+        "title": "بث",
+        "description": "اكتب ملاحظة وبثّها على الشبكة. لا حاجة للإنترنت — رسالتك تنتقل عبر Bluetooth."
       },
       "propagate": {
-        "title": "Propagate",
-        "description": "Nearby devices automatically pick up and relay your note, carrying it further across the mesh with each hop."
+        "title": "انتشار",
+        "description": "الأجهزة القريبة تلتقط ملاحظتك تلقائياً وتُرحّلها، فتصل أبعد مع كل قفزة."
       },
       "persist": {
-        "title": "Persist",
-        "description": "Notes live on the network independently. Even after you leave, your message continues traveling through devices in the area."
+        "title": "استمرار",
+        "description": "الملاحظات تعيش على الشبكة باستقلال. حتى بعد مغادرتك، تستمر رسالتك عبر أجهزة المنطقة."
       },
       "discover": {
-        "title": "Discover",
-        "description": "Open the feed to see notes from the mesh around you, from people nearby, or messages that have traveled through many hands to reach you."
+        "title": "اكتشاف",
+        "description": "افتح التغذية لرؤية ملاحظات الشبكة حولك، من أشخاص قريبين أو رسائل مرّت بأيدٍ كثيرة لتصلك."
       },
       "encrypt": {
-        "title": "Encrypt",
-        "description": "Add a password while composing to lock a note. Title and body encrypt on-device before broadcast — peers see a locked card until they enter it. There is no recovery, so share the password separately."
+        "title": "تشفير",
+        "description": "أضف كلمة مرور أثناء الكتابة لقفل الملاحظة. يُشفَّر العنوان والنص على الجهاز قبل البث — يرى النظير بطاقة مقفلة حتى يُدخلها. لا استرداد، شارك كلمة المرور بشكل منفصل."
       }
     }
   },
   "noteType": {
-    "emergency": "Emergency",
-    "resource": "Resource",
-    "information": "Information",
-    "waypoint": "Waypoint"
+    "emergency": "طوارئ",
+    "resource": "مورد",
+    "information": "معلومات",
+    "waypoint": "نقطة طريق"
   },
   "compose": {
-    "title": "Compose",
-    "transmissionTitle": "Transmission Title",
-    "bodyPlaceholder": "Compose your transmission...",
-    "password": "Password",
-    "confirmPassword": "Confirm Password",
-    "encryptToggle": "Encrypt this note with a password",
-    "passwordsDoNotMatch": "Passwords do not match",
-    "broadcastFailed": "Broadcast failed",
-    "broadcast": "Broadcast",
-    "encrypting": "Encrypting...",
-    "transmitting": "Transmitting...",
-    "done": "Done",
-    "transmitted": "Transmitted"
+    "title": "إنشاء",
+    "transmissionTitle": "عنوان الإرسال",
+    "bodyPlaceholder": "اكتب إرسالك...",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "encryptToggle": "شفّر هذه الملاحظة بكلمة مرور",
+    "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+    "broadcastFailed": "فشل البث",
+    "broadcast": "بث",
+    "encrypting": "جارٍ التشفير...",
+    "transmitting": "جارٍ الإرسال...",
+    "done": "تم",
+    "transmitted": "تم الإرسال"
   },
   "feed": {
-    "all": "All",
-    "meshOffline": "Mesh Offline",
-    "meshActive": "Mesh Active",
-    "meshError": "Mesh Error",
-    "initializing": "Initializing...",
-    "encrypted": "Encrypted",
-    "meshListening": "Mesh is listening",
-    "noTransmissions": "No transmissions",
-    "noFilterTransmissions": "No {{filter}} transmissions",
-    "listening": "Listening",
-    "scanning": "Scanning...",
-    "noteCount_one": "{{count}} note",
-    "noteCount_other": "{{count}} notes",
-    "peers": "{{count}} peers"
+    "all": "الكل",
+    "meshOffline": "الشبكة غير متصلة",
+    "meshActive": "الشبكة نشطة",
+    "meshError": "خطأ الشبكة",
+    "initializing": "جارٍ التهيئة...",
+    "encrypted": "مشفّر",
+    "meshListening": "الشبكة تستمع",
+    "noTransmissions": "لا إرسالات",
+    "noFilterTransmissions": "لا إرسالات {{filter}}",
+    "listening": "يستمع",
+    "scanning": "جارٍ المسح...",
+    "noteCount_zero": "لا ملاحظات",
+    "noteCount_one": "ملاحظة واحدة",
+    "noteCount_two": "ملاحظتان",
+    "noteCount_few": "{{count}} ملاحظات",
+    "noteCount_many": "{{count}} ملاحظة",
+    "noteCount_other": "{{count}} ملاحظة",
+    "peers": "{{count}} نظير"
   },
   "noteCard": {
-    "origin": "Origin",
-    "type": "Type",
-    "broadcast": "Broadcast",
-    "hops": "Hops",
-    "status": "Status",
-    "signalLost": "Signal Lost",
-    "signalActive": "Signal Active",
-    "encryptedMessage": "Encrypted message",
-    "tapToUnlock": "Tap to unlock",
-    "transmissionDetail": "Transmission detail",
-    "detailFooter": "Anonymous · mesh relay · no infrastructure",
-    "unlockTransmission": "Unlock transmission",
-    "enterPassword": "Enter Password",
-    "incorrectPassword": "Incorrect password",
-    "cancel": "Cancel",
-    "decrypting": "Decrypting...",
-    "unlock": "Unlock",
-    "fromAuthor": "From {{id}}",
-    "you": "(you)",
-    "hopOne": "Hop 1",
-    "hopCount": "Hop {{count}}",
-    "hopCountWarning": "Hop {{count}} ⚠",
-    "hopsDirect": "Direct — no relay",
-    "hopsOneRelay": "1 relay",
-    "hopsManyRelays": "{{count}} relays"
+    "origin": "المصدر",
+    "type": "النوع",
+    "broadcast": "البث",
+    "hops": "القفزات",
+    "status": "الحالة",
+    "signalLost": "فقدان الإشارة",
+    "signalActive": "الإشارة نشطة",
+    "encryptedMessage": "رسالة مشفّرة",
+    "tapToUnlock": "اضغط للفتح",
+    "transmissionDetail": "تفاصيل الإرسال",
+    "detailFooter": "مجهول · ترحيل شبكي · بلا بنية تحتية",
+    "unlockTransmission": "فتح الإرسال",
+    "enterPassword": "أدخل كلمة المرور",
+    "incorrectPassword": "كلمة مرور خاطئة",
+    "cancel": "إلغاء",
+    "decrypting": "جارٍ فك التشفير...",
+    "unlock": "فتح",
+    "fromAuthor": "من {{id}}",
+    "you": "(أنت)",
+    "hopOne": "قفزة 1",
+    "hopCount": "قفزة {{count}}",
+    "hopCountWarning": "قفزة {{count}} ⚠",
+    "hopsDirect": "مباشر — بلا ترحيل",
+    "hopsOneRelay": "ترحيل واحد",
+    "hopsManyRelays": "{{count}} ترحيلات"
   }
 }

@@ -10,6 +10,26 @@ import {
   Oxanium_400Regular,
   Oxanium_700Bold,
 } from '@expo-google-fonts/oxanium';
+import {
+  NotoSansSC_400Regular,
+  NotoSansSC_600SemiBold,
+  NotoSansSC_700Bold,
+} from '@expo-google-fonts/noto-sans-sc';
+import {
+  NotoSansDevanagari_400Regular,
+  NotoSansDevanagari_600SemiBold,
+  NotoSansDevanagari_700Bold,
+} from '@expo-google-fonts/noto-sans-devanagari';
+import {
+  NotoSansBengali_400Regular,
+  NotoSansBengali_600SemiBold,
+  NotoSansBengali_700Bold,
+} from '@expo-google-fonts/noto-sans-bengali';
+import {
+  NotoSansArabic_400Regular,
+  NotoSansArabic_600SemiBold,
+  NotoSansArabic_700Bold,
+} from '@expo-google-fonts/noto-sans-arabic';
 import * as SplashScreen from 'expo-splash-screen';
 import { initI18n } from './src/i18n';
 import { MeshProvider } from './src/mesh/MeshContext';
@@ -25,6 +45,18 @@ export default function App() {
     IBMPlexMono_700Bold,
     Oxanium_400Regular,
     Oxanium_700Bold,
+    NotoSansSC_400Regular,
+    NotoSansSC_600SemiBold,
+    NotoSansSC_700Bold,
+    NotoSansDevanagari_400Regular,
+    NotoSansDevanagari_600SemiBold,
+    NotoSansDevanagari_700Bold,
+    NotoSansBengali_400Regular,
+    NotoSansBengali_600SemiBold,
+    NotoSansBengali_700Bold,
+    NotoSansArabic_400Regular,
+    NotoSansArabic_600SemiBold,
+    NotoSansArabic_700Bold,
   });
 
   useEffect(() => {

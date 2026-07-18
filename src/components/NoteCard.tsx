@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import {
@@ -15,7 +15,7 @@ import {
 import { decryptNoteContent } from '../crypto/noteEncryption';
 import { MAX_HOPS } from '../mesh/MeshContext';
 import { colors, getNoteTypeColor } from '../theme/colors';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 import type { Note } from '../types/Note';
 
 interface NoteCardProps {
@@ -103,9 +103,10 @@ interface DetailRowProps {
   label: string;
   value: string;
   valueColor?: string;
+  styles: NoteCardStyles;
 }
 
-function DetailRow({ label, value, valueColor = colors.textPrimary }: DetailRowProps) {
+function DetailRow({ label, value, valueColor = colors.textPrimary, styles }: DetailRowProps) {
   return (
     <View style={styles.detailRowBlock}>
       <Text style={styles.detailLabel}>{label}</Text>
@@ -117,6 +118,8 @@ function DetailRow({ label, value, valueColor = colors.textPrimary }: DetailRowP
 
 export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
   const { t } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
   const [showDetail, setShowDetail] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [unlockPassword, setUnlockPassword] = useState('');
@@ -396,21 +399,25 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
                 label={t('noteCard.type')}
                 value={t(`noteType.${note.type}`)}
                 valueColor={typeColor}
+                styles={styles}
               />
               <DetailRow
                 label={t('noteCard.origin')}
                 value={note.authorId.slice(0, 8).toUpperCase()}
                 valueColor={colors.textSecondary}
+                styles={styles}
               />
               <DetailRow
                 label={t('noteCard.broadcast')}
                 value={formatDetailTimestamp(note.timestamp)}
                 valueColor={colors.textSecondary}
+                styles={styles}
               />
               <DetailRow
                 label={t('noteCard.hops')}
                 value={getHopsLabel(note.hopOrigin, t)}
                 valueColor={getHopsColor(note.hopOrigin)}
+                styles={styles}
               />
               <View style={styles.detailRowBlock}>
                 <Text style={styles.detailLabel}>{t('noteCard.status')}</Text>
@@ -510,7 +517,10 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+type NoteCardStyles = ReturnType<typeof createStyles>;
+
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   card: {
     borderWidth: 1,
     borderRadius: 6,
@@ -603,7 +613,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontFamily: fonts.regular,
     flexShrink: 1,
-    marginRight: 8,
+    marginEnd: 8,
     textTransform: 'uppercase',
   },
   metaRight: {
@@ -751,4 +761,5 @@ const styles = StyleSheet.create({
   unlockButtonLabelDisabled: {
     color: colors.textMeta,
   },
-});
+  });
+}

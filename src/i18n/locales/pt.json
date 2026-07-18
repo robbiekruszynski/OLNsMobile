@@ -6,6 +6,7 @@
     "joinMesh": "Entrar na Malha",
     "howItWorks": "Como Funciona",
     "language": "Idioma",
+    "restartingLanguage": "Reiniciando para aplicar o idioma",
     "howItWorksFooter": "OLNs funciona sem WiFi, dados móveis ou qualquer infraestrutura. Rede em malha pura ponto a ponto.",
     "steps": {
       "broadcast": {

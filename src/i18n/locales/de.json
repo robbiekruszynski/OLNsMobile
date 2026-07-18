@@ -6,6 +6,7 @@
     "joinMesh": "Mesh Beitreten",
     "howItWorks": "So Funktioniert's",
     "language": "Sprache",
+    "restartingLanguage": "Neustart zur Sprachanwendung",
     "howItWorksFooter": "OLNs funktioniert ohne WLAN, Mobilfunk oder jede Infrastruktur. Reines Peer-to-Peer-Mesh-Netzwerk.",
     "steps": {
       "broadcast": {

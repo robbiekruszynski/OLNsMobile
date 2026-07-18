@@ -4,6 +4,10 @@
   "main": "index.js",
   "dependencies": {
     "@expo-google-fonts/ibm-plex-mono": "^0.4.1",
+    "@expo-google-fonts/noto-sans-arabic": "^0.4.3",
+    "@expo-google-fonts/noto-sans-bengali": "^0.4.4",
+    "@expo-google-fonts/noto-sans-devanagari": "^0.4.1",
+    "@expo-google-fonts/noto-sans-sc": "^0.4.3",
     "@expo-google-fonts/oxanium": "^0.4.2",
     "@noble/hashes": "^2.2.0",
     "@offline-protocol/mesh-sdk": "^0.14.0",
@@ -18,6 +22,7 @@
     "expo-localization": "~56.0.6",
     "expo-splash-screen": "~56.0.11",
     "expo-status-bar": "~56.0.4",
+    "expo-updates": "~56.0.22",
     "i18next": "^26.3.6",
     "react": "19.2.3",
     "react-i18next": "^17.0.10",

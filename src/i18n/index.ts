@@ -3,6 +3,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import { getStoredLanguage, saveLanguage } from './languageStorage';
+import { syncLayoutDirectionOnStartup } from './applyLanguage';
 import { resolveLanguageTag, type LanguageTag } from './languages';
 
 import ar from './locales/ar.json';
@@ -51,6 +52,7 @@ i18n.use(initReactI18next).init({
 export async function initI18n(): Promise<void> {
   const stored = await getStoredLanguage();
   const language = stored ? resolveLanguageTag(stored) : getDeviceLanguage();
+  syncLayoutDirectionOnStartup(language);
   await i18n.changeLanguage(language);
 }
 
@@ -58,5 +60,7 @@ export async function setAppLanguage(language: LanguageTag): Promise<void> {
   await i18n.changeLanguage(language);
   await saveLanguage(language);
 }
+
+export { applyLanguageChange, isRtlLanguage } from './applyLanguage';
 
 export default i18n;

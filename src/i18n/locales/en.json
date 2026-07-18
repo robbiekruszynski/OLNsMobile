@@ -6,6 +6,7 @@
     "joinMesh": "Join Mesh",
     "howItWorks": "How It Works",
     "language": "Language",
+    "restartingLanguage": "Restarting to apply language",
     "howItWorksFooter": "OLNs works without WiFi, cellular, or any infrastructure. Pure peer-to-peer mesh networking.",
     "steps": {
       "broadcast": {
