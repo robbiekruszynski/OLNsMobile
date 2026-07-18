@@ -5,18 +5,17 @@ import { useTranslation } from 'react-i18next';
 import {
   Animated,
   Image,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { applyLanguageChange } from '../i18n';
-import { getLanguageCode, LANGUAGES } from '../i18n/languages';
+import { getLanguageCode } from '../i18n/languages';
+import { HowItWorksModal } from '../components/HowItWorksModal';
+import { LanguagePickerModal } from '../components/LanguagePickerModal';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { useAppFonts, type AppFontSet } from '../theme/typography';
@@ -51,39 +50,6 @@ const NODE_POSITIONS = [
   { x: 0.18, y: 0.91 },
   { x: 0.68, y: 0.88 },
   { x: 0.5, y: 0.31, isOrigin: true },
-] as const;
-
-const HOW_IT_WORKS_STEPS = [
-  {
-    number: '01',
-    titleKey: 'home.steps.broadcast.title',
-    descriptionKey: 'home.steps.broadcast.description',
-    color: colors.typeEmergency,
-  },
-  {
-    number: '02',
-    titleKey: 'home.steps.propagate.title',
-    descriptionKey: 'home.steps.propagate.description',
-    color: colors.typeInformation,
-  },
-  {
-    number: '03',
-    titleKey: 'home.steps.persist.title',
-    descriptionKey: 'home.steps.persist.description',
-    color: colors.typeWaypoint,
-  },
-  {
-    number: '04',
-    titleKey: 'home.steps.discover.title',
-    descriptionKey: 'home.steps.discover.description',
-    color: colors.typeResource,
-  },
-  {
-    number: '05',
-    titleKey: 'home.steps.encrypt.title',
-    descriptionKey: 'home.steps.encrypt.description',
-    color: '#9B6DFF',
-  },
 ] as const;
 
 const meshStyles = StyleSheet.create({
@@ -239,7 +205,6 @@ export default function HomeScreen() {
   const styles = useMemo(() => createStyles(fonts), [fonts]);
 
   const [isJoining, setIsJoining] = useState(false);
-  const [isRestartingLanguage, setIsRestartingLanguage] = useState(false);
   const selectedLanguageCode = getLanguageCode(i18n.language);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
@@ -791,115 +756,14 @@ export default function HomeScreen() {
         </Animated.View>
       </View>
 
-      <Modal
-        visible={showHowItWorks}
-        animationType="slide"
-        presentationStyle="fullScreen"
-        onRequestClose={() => setShowHowItWorks(false)}>
-        <SafeAreaView style={styles.howItWorksModalContainer}>
-          <View style={styles.howItWorksModalHeader}>
-            <Text style={styles.howItWorksModalHeaderTitle}>
-              {t('home.howItWorks')}
-            </Text>
-            <Pressable
-              onPress={() => setShowHowItWorks(false)}
-              hitSlop={8}
-              style={styles.howItWorksModalCloseButton}>
-              <Text style={styles.howItWorksModalCloseLabel}>✕</Text>
-            </Pressable>
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.howItWorksScrollContent}
-            showsVerticalScrollIndicator={false}>
-            {HOW_IT_WORKS_STEPS.map((step, index) => (
-              <View key={step.number}>
-                {index > 0 && <View style={styles.stepDivider} />}
-                <View style={styles.stepRow}>
-                  <View
-                    style={[
-                      styles.stepAccentBar,
-                      { backgroundColor: step.color },
-                    ]}
-                  />
-                  <View style={styles.stepContent}>
-                    <Text
-                      style={[styles.stepNumber, { color: step.color }]}>
-                      {step.number}
-                    </Text>
-                    <Text style={styles.stepTitle}>{t(step.titleKey)}</Text>
-                    <Text style={styles.stepDescription}>
-                      {t(step.descriptionKey)}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-
-            <Text style={styles.modalFooter}>{t('home.howItWorksFooter')}</Text>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      <Modal
+      <LanguagePickerModal
         visible={showLanguage}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowLanguage(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalHeaderTitle}>{t('home.language')}</Text>
-            <Pressable
-              onPress={() => setShowLanguage(false)}
-              hitSlop={8}
-              style={styles.modalCloseButton}>
-              <Text style={styles.modalCloseLabel}>✕</Text>
-            </Pressable>
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.modalScrollContent}
-            showsVerticalScrollIndicator={false}>
-            {LANGUAGES.map(language => {
-              const selected = selectedLanguageCode === language.code;
-
-              return (
-                <Pressable
-                  key={language.code}
-                  onPress={() => {
-                    if (language.tag === i18n.language) {
-                      setShowLanguage(false);
-                      return;
-                    }
-
-                    setIsRestartingLanguage(true);
-                    void applyLanguageChange(language.tag)
-                      .then(result => {
-                        if (result === 'applied') {
-                          setIsRestartingLanguage(false);
-                          setShowLanguage(false);
-                        }
-                      })
-                      .catch(() => {
-                        setIsRestartingLanguage(false);
-                      });
-                  }}
-                  style={styles.languageRow}>
-                  <Text style={styles.languageCode}>{language.code}</Text>
-                  <Text style={styles.languageName}>{language.label}</Text>
-                  {selected && <Text style={styles.languageCheck}>✓</Text>}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      {isRestartingLanguage && (
-        <View style={styles.restartingOverlay}>
-          <Text style={styles.restartingText}>{t('home.restartingLanguage')}</Text>
-        </View>
-      )}
+        onClose={() => setShowLanguage(false)}
+      />
+      <HowItWorksModal
+        visible={showHowItWorks}
+        onClose={() => setShowHowItWorks(false)}
+      />
     </View>
   );
 }
@@ -1013,160 +877,6 @@ function createStyles(fonts: AppFontSet) {
   },
   joinLabelPressed: {
     color: colors.background,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  howItWorksModalContainer: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  howItWorksModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 0,
-    marginBottom: 28,
-    backgroundColor: colors.surface,
-  },
-  howItWorksModalHeaderTitle: {
-    flex: 1,
-    fontFamily: fonts.display,
-    fontSize: 16,
-    color: colors.accent,
-    letterSpacing: 3,
-    textTransform: 'uppercase',
-  },
-  howItWorksModalCloseButton: {
-    padding: 12,
-  },
-  howItWorksModalCloseLabel: {
-    fontFamily: fonts.regular,
-    fontSize: 20,
-    color: colors.textSecondary,
-  },
-  howItWorksScrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 16,
-  },
-  modalHeaderTitle: {
-    fontFamily: fonts.bold,
-    fontSize: 14,
-    color: colors.accent,
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-  },
-  modalCloseButton: {
-    padding: 8,
-  },
-  modalCloseLabel: {
-    fontFamily: fonts.regular,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  modalScrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  },
-  stepAccentBar: {
-    width: 3,
-    borderRadius: 2,
-    marginEnd: 16,
-  },
-  stepContent: {
-    flex: 1,
-  },
-  stepDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 28,
-  },
-  stepNumber: {
-    fontFamily: fonts.bold,
-    fontSize: 11,
-    letterSpacing: 3,
-    marginBottom: 6,
-  },
-  stepTitle: {
-    fontFamily: fonts.bold,
-    fontSize: 20,
-    color: colors.textPrimary,
-    letterSpacing: 1,
-    marginBottom: 10,
-    textTransform: 'uppercase',
-  },
-  stepDescription: {
-    fontFamily: fonts.regular,
-    fontSize: 15,
-    lineHeight: 24,
-    letterSpacing: 0.3,
-    color: colors.textSecondary,
-  },
-  modalFooter: {
-    fontFamily: fonts.regular,
-    fontSize: 13,
-    color: colors.textMeta,
-    textAlign: 'center',
-    lineHeight: 20,
-    letterSpacing: 0.5,
-    paddingHorizontal: 24,
-    marginTop: 32,
-  },
-  languageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  languageCode: {
-    width: 40,
-    fontFamily: fonts.bold,
-    fontSize: 12,
-    color: colors.accent,
-    letterSpacing: 1,
-  },
-  languageName: {
-    flex: 1,
-    fontFamily: fonts.regular,
-    fontSize: 14,
-    color: colors.textPrimary,
-  },
-  languageCheck: {
-    fontFamily: fonts.bold,
-    fontSize: 14,
-    color: colors.hopIndicator,
-  },
-  restartingOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 100,
-    paddingHorizontal: 32,
-  },
-  restartingText: {
-    fontFamily: fonts.regular,
-    fontSize: 13,
-    color: colors.textSecondary,
-    letterSpacing: 2,
-    textAlign: 'center',
-    textTransform: 'uppercase',
   },
   });
 }

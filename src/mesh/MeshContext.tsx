@@ -22,6 +22,7 @@ import {
 import { getOrCreateUserId } from '../identity/getOrCreateUserId';
 import { requestBlePermissions } from '../permissions/requestBlePermissions';
 import { getNotes, saveNote } from '../storage/noteStorage';
+import { getAllowRelay } from '../storage/relayStorage';
 import type { Note, NoteType } from '../types/Note';
 
 const NOTE_SERVICE_ID = 'offline-notes.v1';
@@ -233,6 +234,7 @@ export function MeshProvider({ children }: { children: ReactNode }) {
   const receivedNotesRef = useRef<Note[]>([]);
   const discoveryInFlightRef = useRef(false);
   const relayedNoteIdsRef = useRef<Set<string>>(new Set());
+  const allowRelayRef = useRef(true);
   const activePeerIdsRef = useRef<Set<string>>(new Set());
   const activeAuthorIdsRef = useRef<Set<string>>(new Set());
   const peerIdToAuthorIdRef = useRef<Map<string, string>>(new Map());
@@ -341,6 +343,10 @@ export function MeshProvider({ children }: { children: ReactNode }) {
       const activeProtocol = protocolRef.current;
 
       if (!currentUserId || !activeServices || !activeProtocol) {
+        return;
+      }
+
+      if (!allowRelayRef.current) {
         return;
       }
 
@@ -572,6 +578,9 @@ export function MeshProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        const allowRelay = await getAllowRelay();
+        allowRelayRef.current = allowRelay;
+
         activeProtocol = new OfflineProtocol({
           appId: 'olns',
           userId: currentUserId,
@@ -597,7 +606,7 @@ export function MeshProvider({ children }: { children: ReactNode }) {
             ble: { enabled: true },
           },
           relay: {
-            allowRelay: true,
+            allowRelay,
             minBatteryForRelay: 20,
             relayPriority: 'auto',
           },

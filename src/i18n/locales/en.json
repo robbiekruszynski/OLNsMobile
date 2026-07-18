@@ -94,5 +94,33 @@
     "hopsDirect": "Direct — no relay",
     "hopsOneRelay": "1 relay",
     "hopsManyRelays": "{{count}} relays"
+  },
+  "settings": {
+    "title": "Settings",
+    "identity": {
+      "label": "Your Mesh Identity",
+      "description": "Anonymous per-device identifier — not an account.",
+      "copy": "Copy",
+      "copied": "Copied"
+    },
+    "language": "Language",
+    "howItWorks": "How It Works",
+    "relay": {
+      "label": "Relay",
+      "description": "Allow this device to relay other people's notes.",
+      "confirmTitle": "Restart Mesh?",
+      "confirmMessage": "Changing relay settings requires restarting the mesh connection.",
+      "restart": "Restart",
+      "cancel": "Cancel",
+      "restarting": "Restarting mesh connection..."
+    },
+    "clearNotes": {
+      "label": "Clear My Notes",
+      "confirmTitle": "Clear Local Notes?",
+      "confirmMessage": "This permanently deletes notes stored on this device. Notes already relayed onto the mesh cannot be recalled.",
+      "confirm": "Clear",
+      "cancel": "Cancel"
+    },
+    "version": "Version {{version}}"
   }
 }
