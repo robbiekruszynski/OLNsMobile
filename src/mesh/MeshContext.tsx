@@ -22,6 +22,7 @@ import {
 import { getOrCreateUserId } from '../identity/getOrCreateUserId';
 import { requestBlePermissions } from '../permissions/requestBlePermissions';
 import { getNotes, saveNote } from '../storage/noteStorage';
+import { getAllowRelay } from '../storage/relayStorage';
 import type { Note, NoteType } from '../types/Note';
 
 const NOTE_SERVICE_ID = 'offline-notes.v1';
@@ -233,6 +234,7 @@ export function MeshProvider({ children }: { children: ReactNode }) {
   const receivedNotesRef = useRef<Note[]>([]);
   const discoveryInFlightRef = useRef(false);
   const relayedNoteIdsRef = useRef<Set<string>>(new Set());
+  const allowRelayRef = useRef(true);
   const activePeerIdsRef = useRef<Set<string>>(new Set());
   const activeAuthorIdsRef = useRef<Set<string>>(new Set());
   const peerIdToAuthorIdRef = useRef<Map<string, string>>(new Map());
@@ -341,6 +343,10 @@ export function MeshProvider({ children }: { children: ReactNode }) {
       const activeProtocol = protocolRef.current;
 
       if (!currentUserId || !activeServices || !activeProtocol) {
+        return;
+      }
+
+      if (!allowRelayRef.current) {
         return;
       }
 
@@ -572,15 +578,35 @@ export function MeshProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        const allowRelay = await getAllowRelay();
+        allowRelayRef.current = allowRelay;
+
         activeProtocol = new OfflineProtocol({
           appId: 'olns',
           userId: currentUserId,
           newArchEnabled: false,
+          // DEBUG: 0.14.0 introduced this kill switch for the compact binary
+          // wire codec on mesh-hop framing (defaults true). Forcing it off to
+          // test whether the new codec is why fragments arrive over BLE but
+          // never reassemble into a usable service_discovered/note payload
+          // post-bump. Revert once we confirm/deny.
+          binaryWireEnabled: false,
+          // DEBUG: 0.14.0 also flipped requireEncryption's default from
+          // false to true (fail-closed: sends fail/drop instead of going
+          // plaintext if no MLS session is established). Native config log
+          // confirms requireEncryption is true even though we never set it.
+          // Disabling the whole encryption subsystem to test whether a
+          // stuck/never-completing MLS handshake between these two devices
+          // is what's silently blocking the note payload while low-level BLE
+          // fragments keep flowing. Revert once we confirm/deny.
+          encryption: {
+            enabled: false,
+          },
           transports: {
             ble: { enabled: true },
           },
           relay: {
-            allowRelay: true,
+            allowRelay,
             minBatteryForRelay: 20,
             relayPriority: 'auto',
           },

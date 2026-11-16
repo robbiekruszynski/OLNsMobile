@@ -33,3 +33,13 @@ export async function getNotes(): Promise<Note[]> {
 export async function deleteNote(noteId: string): Promise<void> {
   await AsyncStorage.removeItem(`${NOTE_PREFIX}${noteId}`);
 }
+
+export async function clearAllNotes(): Promise<void> {
+  const keys = await AsyncStorage.getAllKeys();
+  const noteKeys = keys.filter(key => key.startsWith(NOTE_PREFIX));
+  if (noteKeys.length === 0) {
+    return;
+  }
+
+  await AsyncStorage.multiRemove(noteKeys);
+}

@@ -3,14 +3,11 @@
 Short notes over BLE mesh. No server, no cell, no Wi-Fi. Public or
 password-encrypted.
 
-<p align="center">
-  <video
-    src="https://github.com/user-attachments/assets/413be3f9-ea9b-47e0-b843-fc902255f218"
-    controls
-    width="600">
-    Watch the OLNs demo.
-  </video>
-</p>
+## Demo
+
+https://github.com/user-attachments/assets/413be3f9-ea9b-47e0-b843-fc902255f218
+
+If the player does not appear, [open the demo video](https://github.com/user-attachments/assets/413be3f9-ea9b-47e0-b843-fc902255f218) in a new tab.
 
 
 Built with Expo SDK 56, React Native 0.85.3, and

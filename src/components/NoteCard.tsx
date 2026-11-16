@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   Animated,
   Modal,
@@ -13,9 +15,8 @@ import {
 import { decryptNoteContent } from '../crypto/noteEncryption';
 import { MAX_HOPS } from '../mesh/MeshContext';
 import { colors, getNoteTypeColor } from '../theme/colors';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 import type { Note } from '../types/Note';
-import { ENCRYPTED_NOTE_TITLE } from '../types/Note';
 
 interface NoteCardProps {
   note: Note;
@@ -46,44 +47,44 @@ function formatDetailTimestamp(iso: string): string {
   return `${hours}:${minutes} · ${day} ${month} ${year}`;
 }
 
-function getHopBadge(note: Note) {
+function getHopBadge(note: Note, t: TFunction) {
   if (note.hopOrigin >= MAX_HOPS - 1) {
     return {
-      label: `HOP ${note.hopOrigin} ⚠`,
+      label: t('noteCard.hopCountWarning', { count: note.hopOrigin }),
       color: colors.error,
     };
   }
 
   if (note.hopOrigin >= 2) {
     return {
-      label: `HOP ${note.hopOrigin}`,
+      label: t('noteCard.hopCount', { count: note.hopOrigin }),
       color: colors.accent,
     };
   }
 
   if (note.hopOrigin === 1) {
     return {
-      label: 'HOP 1',
+      label: t('noteCard.hopOne'),
       color: colors.textSecondary,
     };
   }
 
   return {
-    label: 'ORIGIN',
+    label: t('noteCard.origin'),
     color: colors.hopIndicator,
   };
 }
 
-function getHopsLabel(hopOrigin: number): string {
+function getHopsLabel(hopOrigin: number, t: TFunction): string {
   if (hopOrigin === 0) {
-    return 'DIRECT - NO RELAY';
+    return t('noteCard.hopsDirect');
   }
 
   if (hopOrigin === 1) {
-    return '1 RELAY';
+    return t('noteCard.hopsOneRelay');
   }
 
-  return `${hopOrigin} RELAYS`;
+  return t('noteCard.hopsManyRelays', { count: hopOrigin });
 }
 
 function getHopsColor(hopOrigin: number): string {
@@ -102,9 +103,10 @@ interface DetailRowProps {
   label: string;
   value: string;
   valueColor?: string;
+  styles: NoteCardStyles;
 }
 
-function DetailRow({ label, value, valueColor = colors.textPrimary }: DetailRowProps) {
+function DetailRow({ label, value, valueColor = colors.textPrimary, styles }: DetailRowProps) {
   return (
     <View style={styles.detailRowBlock}>
       <Text style={styles.detailLabel}>{label}</Text>
@@ -115,6 +117,9 @@ function DetailRow({ label, value, valueColor = colors.textPrimary }: DetailRowP
 }
 
 export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
+  const { t } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
   const [showDetail, setShowDetail] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [unlockPassword, setUnlockPassword] = useState('');
@@ -140,7 +145,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
       : !decryptedContent && note.body.length > note.preview.length
         ? '...'
         : '';
-  const hopBadge = getHopBadge(note);
+  const hopBadge = getHopBadge(note, t);
   const typeColor = getNoteTypeColor(note.type);
   const accentColor = isGhost ? colors.textMeta : typeColor;
   const borderColor = isGhost
@@ -309,14 +314,16 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
           <View style={styles.cardContent}>
             <View style={styles.topRow}>
               <Text style={[styles.typeLabel, { color: accentColor }]}>
-                {note.type.toUpperCase()}
+                {t(`noteType.${note.type}`)}
               </Text>
               <View style={styles.badgeRow}>
                 {note.encrypted && !decryptedContent && (
                   <Text style={styles.lockBadge}>🔒</Text>
                 )}
                 {isGhost && (
-                  <Text style={styles.ghostIndicator}>SIGNAL LOST</Text>
+                  <Text style={styles.ghostIndicator}>
+                    {t('noteCard.signalLost')}
+                  </Text>
                 )}
                 <Text style={[styles.hopBadge, { color: hopBadge.color }]}>
                   {hopBadge.label}
@@ -335,8 +342,10 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
 
             {isLocked ? (
               <View style={styles.lockedContent}>
-                <Text style={styles.lockedTitle}>{ENCRYPTED_NOTE_TITLE}</Text>
-                <Text style={styles.unlockHint}>TAP TO UNLOCK</Text>
+                <Text style={styles.lockedTitle}>
+                  {t('noteCard.encryptedMessage')}
+                </Text>
+                <Text style={styles.unlockHint}>{t('noteCard.tapToUnlock')}</Text>
               </View>
             ) : (
               <>
@@ -358,8 +367,10 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
 
             <View style={styles.bottomRow}>
               <Text style={styles.metaLeft}>
-                FROM {note.authorId.slice(0, 8).toUpperCase()}
-                {isOwn ? ' (YOU)' : ''}
+                {t('noteCard.fromAuthor', {
+                  id: note.authorId.slice(0, 8).toUpperCase(),
+                })}
+                {isOwn ? ` ${t('noteCard.you')}` : ''}
               </Text>
               <Text style={styles.metaRight}>
                 {formatTimestamp(note.timestamp)}
@@ -376,7 +387,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
             <View style={styles.detailHeader}>
               <Text
                 style={[styles.detailHeaderTitle, { color: typeColor }]}>
-                TRANSMISSION DETAIL
+                {t('noteCard.transmissionDetail')}
               </Text>
               <Pressable onPress={closeDetail} hitSlop={8} style={styles.detailClose}>
                 <Text style={styles.detailCloseLabel}>✕</Text>
@@ -385,27 +396,31 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
 
             <View style={styles.detailRows}>
               <DetailRow
-                label="TYPE"
-                value={note.type.toUpperCase()}
+                label={t('noteCard.type')}
+                value={t(`noteType.${note.type}`)}
                 valueColor={typeColor}
+                styles={styles}
               />
               <DetailRow
-                label="ORIGIN"
+                label={t('noteCard.origin')}
                 value={note.authorId.slice(0, 8).toUpperCase()}
                 valueColor={colors.textSecondary}
+                styles={styles}
               />
               <DetailRow
-                label="BROADCAST"
+                label={t('noteCard.broadcast')}
                 value={formatDetailTimestamp(note.timestamp)}
                 valueColor={colors.textSecondary}
+                styles={styles}
               />
               <DetailRow
-                label="HOPS"
-                value={getHopsLabel(note.hopOrigin)}
+                label={t('noteCard.hops')}
+                value={getHopsLabel(note.hopOrigin, t)}
                 valueColor={getHopsColor(note.hopOrigin)}
+                styles={styles}
               />
               <View style={styles.detailRowBlock}>
-                <Text style={styles.detailLabel}>STATUS</Text>
+                <Text style={styles.detailLabel}>{t('noteCard.status')}</Text>
                 <Text
                   style={[
                     styles.detailValue,
@@ -413,14 +428,12 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
                       color: isGhost ? colors.error : colors.hopIndicator,
                     },
                   ]}>
-                  {isGhost ? 'SIGNAL LOST' : 'SIGNAL ACTIVE'}
+                  {isGhost ? t('noteCard.signalLost') : t('noteCard.signalActive')}
                 </Text>
               </View>
             </View>
 
-            <Text style={styles.detailFooter}>
-              ANONYMOUS · MESH RELAY · NO INFRASTRUCTURE
-            </Text>
+            <Text style={styles.detailFooter}>{t('noteCard.detailFooter')}</Text>
           </Animated.View>
         </View>
       )}
@@ -442,14 +455,16 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
             }
           }}>
           <Pressable style={styles.unlockDialog} onPress={() => {}}>
-            <Text style={styles.unlockDialogTitle}>UNLOCK TRANSMISSION</Text>
+            <Text style={styles.unlockDialogTitle}>
+              {t('noteCard.unlockTransmission')}
+            </Text>
             <TextInput
               value={unlockPassword}
               onChangeText={value => {
                 setUnlockPassword(value);
                 setUnlockError(false);
               }}
-              placeholder="ENTER PASSWORD"
+              placeholder={t('noteCard.enterPassword')}
               placeholderTextColor={colors.textMeta}
               style={styles.unlockInput}
               secureTextEntry
@@ -459,7 +474,9 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
               editable={!isUnlocking}
             />
             {unlockError && (
-              <Text style={styles.unlockError}>INCORRECT PASSWORD</Text>
+              <Text style={styles.unlockError}>
+                {t('noteCard.incorrectPassword')}
+              </Text>
             )}
             <View style={styles.unlockActions}>
               <Pressable
@@ -471,7 +488,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
                     styles.unlockButtonLabel,
                     isUnlocking && styles.unlockButtonLabelDisabled,
                   ]}>
-                  CANCEL
+                  {t('noteCard.cancel')}
                 </Text>
               </Pressable>
               <Pressable
@@ -489,7 +506,7 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
                       opacity: unlockPulseOpacity,
                     },
                   ]}>
-                  {isUnlocking ? 'DECRYPTING...' : 'UNLOCK'}
+                  {isUnlocking ? t('noteCard.decrypting') : t('noteCard.unlock')}
                 </Animated.Text>
               </Pressable>
             </View>
@@ -500,7 +517,10 @@ export default function NoteCard({ note, isOwn, isGhost }: NoteCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+type NoteCardStyles = ReturnType<typeof createStyles>;
+
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   card: {
     borderWidth: 1,
     borderRadius: 6,
@@ -532,17 +552,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 3,
     fontFamily: fonts.bold,
+    textTransform: 'uppercase',
   },
   ghostIndicator: {
     color: colors.error,
     fontSize: 9,
     letterSpacing: 2,
     fontFamily: fonts.regular,
+    textTransform: 'uppercase',
   },
   hopBadge: {
     fontSize: 9,
     letterSpacing: 2,
     fontFamily: fonts.regular,
+    textTransform: 'uppercase',
   },
   lockBadge: {
     fontSize: 11,
@@ -576,6 +599,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     fontFamily: fonts.regular,
     color: colors.textMeta,
+    textTransform: 'uppercase',
   },
   bottomRow: {
     flexDirection: 'row',
@@ -589,7 +613,8 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontFamily: fonts.regular,
     flexShrink: 1,
-    marginRight: 8,
+    marginEnd: 8,
+    textTransform: 'uppercase',
   },
   metaRight: {
     color: colors.textMeta,
@@ -622,6 +647,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 9,
     letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   detailClose: {
     padding: 4,
@@ -644,11 +670,13 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: colors.textMeta,
     marginBottom: 4,
+    textTransform: 'uppercase',
   },
   detailValue: {
     fontFamily: fonts.bold,
     fontSize: 11,
     color: colors.textPrimary,
+    textTransform: 'uppercase',
   },
   detailDivider: {
     height: 1,
@@ -661,6 +689,7 @@ const styles = StyleSheet.create({
     color: colors.textMeta,
     textAlign: 'center',
     marginTop: 8,
+    textTransform: 'uppercase',
   },
   unlockOverlay: {
     flex: 1,
@@ -685,6 +714,7 @@ const styles = StyleSheet.create({
     color: colors.accent,
     textAlign: 'center',
     marginBottom: 16,
+    textTransform: 'uppercase',
   },
   unlockInput: {
     fontFamily: fonts.regular,
@@ -703,6 +733,7 @@ const styles = StyleSheet.create({
     color: colors.error,
     textAlign: 'center',
     marginTop: 10,
+    textTransform: 'uppercase',
   },
   unlockActions: {
     flexDirection: 'row',
@@ -720,12 +751,15 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 2,
     color: colors.textSecondary,
+    textTransform: 'uppercase',
   },
   unlockButtonLabelPrimary: {
     fontFamily: fonts.bold,
     color: colors.accent,
+    textTransform: 'uppercase',
   },
   unlockButtonLabelDisabled: {
     color: colors.textMeta,
   },
-});
+  });
+}

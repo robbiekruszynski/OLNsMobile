@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   InputAccessoryView,
@@ -24,15 +25,15 @@ import { useMesh } from '../mesh/MeshContext';
 import type { RootTabParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 import type { Note, NoteType } from '../types/Note';
 import { ENCRYPTED_NOTE_TITLE } from '../types/Note';
 
-const NOTE_TYPES = [
-  { type: 'emergency' as NoteType, label: 'EMERGENCY', color: '#E5433D' },
-  { type: 'resource' as NoteType, label: 'RESOURCE', color: '#3DAE6E' },
-  { type: 'information' as NoteType, label: 'INFORMATION', color: '#4FACDE' },
-  { type: 'waypoint' as NoteType, label: 'WAYPOINT', color: '#E5A030' },
+const NOTE_TYPE_KEYS: { type: NoteType; labelKey: string; color: string }[] = [
+  { type: 'emergency', labelKey: 'noteType.emergency', color: '#E5433D' },
+  { type: 'resource', labelKey: 'noteType.resource', color: '#3DAE6E' },
+  { type: 'information', labelKey: 'noteType.information', color: '#4FACDE' },
+  { type: 'waypoint', labelKey: 'noteType.waypoint', color: '#E5A030' },
 ];
 
 const DEFAULT_TYPE_INDEX = 2;
@@ -45,6 +46,9 @@ export default function ComposeScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<BottomTabNavigationProp<RootTabParamList>>();
   const { broadcastNote } = useMesh();
+  const { t } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
 
   const [selectedIndex, setSelectedIndex] = useState(DEFAULT_TYPE_INDEX);
   const [title, setTitle] = useState('');
@@ -57,7 +61,7 @@ export default function ComposeScreen() {
   const [successVisible, setSuccessVisible] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
   const [successTypeColor, setSuccessTypeColor] = useState(
-    NOTE_TYPES[DEFAULT_TYPE_INDEX].color,
+    NOTE_TYPE_KEYS[DEFAULT_TYPE_INDEX].color,
   );
 
   const successOverlayOpacity = useRef(new Animated.Value(0)).current;
@@ -65,7 +69,7 @@ export default function ComposeScreen() {
   const labelOpacity = useRef(new Animated.Value(1)).current;
   const moodTintOpacity = useRef(new Animated.Value(0.04)).current;
   const dotWidths = useRef(
-    NOTE_TYPES.map((_, index) =>
+    NOTE_TYPE_KEYS.map((_, index) =>
       new Animated.Value(index === DEFAULT_TYPE_INDEX ? 16 : 5),
     ),
   ).current;
@@ -73,7 +77,7 @@ export default function ComposeScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const bodyInputRef = useRef<TextInput>(null);
 
-  const selectedType = NOTE_TYPES[selectedIndex];
+  const selectedType = NOTE_TYPE_KEYS[selectedIndex];
   const currentTypeColor = selectedType.color;
 
   const passwordsFilled =
@@ -90,10 +94,10 @@ export default function ComposeScreen() {
 
   const broadcastLabel =
     broadcastPhase === 'encrypting'
-      ? 'ENCRYPTING...'
+      ? t('compose.encrypting')
       : broadcastPhase === 'transmitting'
-        ? 'TRANSMITTING...'
-        : 'BROADCAST';
+        ? t('compose.transmitting')
+        : t('compose.broadcast');
 
   selectedIndexRef.current = selectedIndex;
 
@@ -213,12 +217,13 @@ export default function ComposeScreen() {
 
   const goToPrevious = useCallback(() => {
     const nextIndex =
-      (selectedIndexRef.current - 1 + NOTE_TYPES.length) % NOTE_TYPES.length;
+      (selectedIndexRef.current - 1 + NOTE_TYPE_KEYS.length) %
+      NOTE_TYPE_KEYS.length;
     goToIndex(nextIndex);
   }, [goToIndex]);
 
   const goToNext = useCallback(() => {
-    const nextIndex = (selectedIndexRef.current + 1) % NOTE_TYPES.length;
+    const nextIndex = (selectedIndexRef.current + 1) % NOTE_TYPE_KEYS.length;
     goToIndex(nextIndex);
   }, [goToIndex]);
 
@@ -388,7 +393,7 @@ export default function ComposeScreen() {
               onPress={Keyboard.dismiss}
               style={styles.dismissLayer}>
               <View style={styles.header}>
-                <Text style={styles.headerTitle}>COMPOSE</Text>
+                <Text style={styles.headerTitle}>{t('compose.title')}</Text>
               </View>
 
               <View
@@ -416,11 +421,11 @@ export default function ComposeScreen() {
                         opacity: labelOpacity,
                       },
                     ]}>
-                    {selectedType.label}
+                    {t(selectedType.labelKey)}
                   </Animated.Text>
 
                   <View style={styles.dotsRow}>
-                    {NOTE_TYPES.map((typeOption, index) => (
+                    {NOTE_TYPE_KEYS.map((typeOption, index) => (
                       <Animated.View
                         key={typeOption.type}
                         style={[
@@ -457,7 +462,7 @@ export default function ComposeScreen() {
                 <TextInput
                   value={title}
                   onChangeText={value => setTitle(value.slice(0, TITLE_MAX))}
-                  placeholder="TRANSMISSION TITLE"
+                  placeholder={t('compose.transmissionTitle')}
                   placeholderTextColor={colors.textMeta}
                   style={styles.titleInput}
                   maxLength={TITLE_MAX}
@@ -481,7 +486,7 @@ export default function ComposeScreen() {
                     ref={bodyInputRef}
                     value={body}
                     onChangeText={value => setBody(value.slice(0, BODY_MAX))}
-                    placeholder="COMPOSE YOUR TRANSMISSION..."
+                    placeholder={t('compose.bodyPlaceholder')}
                     placeholderTextColor={colors.textMeta}
                     style={styles.bodyInput}
                     multiline
@@ -521,7 +526,7 @@ export default function ComposeScreen() {
                       />
                     </View>
                     <Text style={styles.encryptToggleLabel}>
-                      ENCRYPT THIS NOTE WITH A PASSWORD
+                      {t('compose.encryptToggle')}
                     </Text>
                   </Pressable>
 
@@ -530,7 +535,7 @@ export default function ComposeScreen() {
                       <TextInput
                         value={password}
                         onChangeText={setPassword}
-                        placeholder="PASSWORD"
+                        placeholder={t('compose.password')}
                         placeholderTextColor={colors.textMeta}
                         style={styles.passwordInput}
                         secureTextEntry
@@ -541,7 +546,7 @@ export default function ComposeScreen() {
                       <TextInput
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}
-                        placeholder="CONFIRM PASSWORD"
+                        placeholder={t('compose.confirmPassword')}
                         placeholderTextColor={colors.textMeta}
                         style={styles.passwordInput}
                         secureTextEntry
@@ -551,7 +556,7 @@ export default function ComposeScreen() {
                       />
                       {passwordsFilled && !passwordsMatch && (
                         <Text style={styles.passwordError}>
-                          PASSWORDS DO NOT MATCH
+                          {t('compose.passwordsDoNotMatch')}
                         </Text>
                       )}
                     </View>
@@ -559,7 +564,9 @@ export default function ComposeScreen() {
                 </View>
 
                 {errorVisible && (
-                  <Text style={styles.errorMessage}>BROADCAST FAILED</Text>
+                  <Text style={styles.errorMessage}>
+                    {t('compose.broadcastFailed')}
+                  </Text>
                 )}
 
                 <View style={styles.broadcastZone}>
@@ -607,7 +614,7 @@ export default function ComposeScreen() {
                     styles.keyboardDoneLabel,
                     { color: currentTypeColor },
                   ]}>
-                  DONE
+                  {t('compose.done')}
                 </Text>
               </Pressable>
             </View>
@@ -625,7 +632,7 @@ export default function ComposeScreen() {
             ]}
             pointerEvents="none">
             <Text style={[styles.successText, { color: successTypeColor }]}>
-              TRANSMITTED
+              {t('compose.transmitted')}
             </Text>
           </Animated.View>
         )}
@@ -634,7 +641,8 @@ export default function ComposeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.background,
@@ -668,6 +676,7 @@ const styles = StyleSheet.create({
     color: colors.accent,
     letterSpacing: 2,
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   typeCarousel: {
     height: spacing.xxl * 2 + spacing.sm,
@@ -695,6 +704,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     letterSpacing: 3,
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   dotsRow: {
     flexDirection: 'row',
@@ -749,7 +759,7 @@ const styles = StyleSheet.create({
   },
   bodyCount: {
     position: 'absolute',
-    right: 0,
+    end: 0,
     bottom: 0,
     fontFamily: fonts.regular,
     fontSize: 10,
@@ -774,6 +784,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 13,
     letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   broadcastLabelInactive: {
     color: colors.textMeta,
@@ -787,6 +798,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 20,
     letterSpacing: 3,
+    textTransform: 'uppercase',
   },
   errorMessage: {
     fontSize: 11,
@@ -796,6 +808,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.md,
     marginBottom: spacing.sm,
+    textTransform: 'uppercase',
   },
   encryptSection: {
     paddingTop: spacing.md,
@@ -828,6 +841,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 2,
     color: colors.textSecondary,
+    textTransform: 'uppercase',
   },
   passwordFields: {
     marginTop: spacing.sm + spacing.xs,
@@ -849,6 +863,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: colors.error,
     textAlign: 'center',
+    textTransform: 'uppercase',
   },
   keyboardToolbar: {
     minHeight: 44,
@@ -867,5 +882,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 12,
     letterSpacing: 2,
+    textTransform: 'uppercase',
   },
-});
+  });
+}

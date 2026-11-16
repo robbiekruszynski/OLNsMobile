@@ -1,22 +1,24 @@
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Animated,
   Image,
-  Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { getLanguageCode } from '../i18n/languages';
+import { HowItWorksModal } from '../components/HowItWorksModal';
+import { LanguagePickerModal } from '../components/LanguagePickerModal';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
-import { fonts } from '../theme/typography';
+import { useAppFonts, type AppFontSet } from '../theme/typography';
 
 const NODE_COUNT = 12;
 const NODE_DIAMETER = 6;
@@ -50,54 +52,50 @@ const NODE_POSITIONS = [
   { x: 0.5, y: 0.31, isOrigin: true },
 ] as const;
 
-const LANGUAGES = [
-  { code: 'EN', label: 'English' },
-  { code: 'ES', label: 'Español' },
-  { code: 'FR', label: 'Français' },
-  { code: 'PT', label: 'Português' },
-  { code: 'DE', label: 'Deutsch' },
-  { code: 'AR', label: 'العربية' },
-  { code: 'ZH', label: '中文' },
-  { code: 'JA', label: '日本語' },
-] as const;
-
-const HOW_IT_WORKS_STEPS = [
-  {
-    number: '01',
-    title: 'BROADCAST',
-    color: colors.typeEmergency,
-    description:
-      'Write a note and broadcast it onto the mesh. No internet needed — your message travels over Bluetooth.',
+const meshStyles = StyleSheet.create({
+  meshCanvas: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
   },
-  {
-    number: '02',
-    title: 'PROPAGATE',
-    color: colors.typeInformation,
-    description:
-      'Nearby devices automatically pick up and relay your note, carrying it further across the mesh with each hop.',
+  connectionLine: {
+    position: 'absolute',
+    height: 0.5,
+    backgroundColor: colors.accent,
   },
-  {
-    number: '03',
-    title: 'PERSIST',
-    color: colors.typeWaypoint,
-    description:
-      'Notes live on the network independently. Even after you leave, your message continues traveling through devices in the area.',
+  pulseRing: {
+    position: 'absolute',
+    width: PULSE_END_RADIUS * 2,
+    height: PULSE_END_RADIUS * 2,
+    borderRadius: PULSE_END_RADIUS,
+    borderWidth: 1,
+    borderColor: colors.hopIndicator,
+    backgroundColor: 'transparent',
   },
-  {
-    number: '04',
-    title: 'DISCOVER',
-    color: colors.typeResource,
-    description:
-      'Open the feed to see notes from the mesh around you, from people nearby, or messages that have traveled through many hands to reach you.',
+  birthRing: {
+    position: 'absolute',
+    width: BIRTH_RING_END_RADIUS * 2,
+    height: BIRTH_RING_END_RADIUS * 2,
+    borderRadius: BIRTH_RING_END_RADIUS,
+    borderWidth: 0.8,
+    borderColor: colors.accent,
+    backgroundColor: 'transparent',
   },
-  {
-    number: '05',
-    title: 'ENCRYPT',
-    color: '#9B6DFF',
-    description:
-      'Add a password while composing to lock a note. Title and body encrypt on-device before broadcast — peers see a locked card until they enter it. There is no recovery, so share the password separately.',
+  packet: {
+    position: 'absolute',
+    width: PACKET_DIAMETER,
+    height: PACKET_DIAMETER,
+    borderRadius: PACKET_RADIUS,
+    backgroundColor: colors.accent,
   },
-] as const;
+  node: {
+    position: 'absolute',
+    backgroundColor: colors.accent,
+  },
+  originNode: {
+    backgroundColor: colors.hopIndicator,
+  },
+});
 
 interface NodeData {
   id: number;
@@ -155,7 +153,7 @@ function DynamicConnectionLine({
   return (
     <Animated.View
       style={[
-        styles.connectionLine,
+        meshStyles.connectionLine,
         {
           left: midX - length / 2,
           top: midY - 0.25,
@@ -183,7 +181,7 @@ function DataPacketDot({
   return (
     <Animated.View
       style={[
-        styles.packet,
+        meshStyles.packet,
         {
           left: from.x - PACKET_RADIUS,
           top: from.y - PACKET_RADIUS,
@@ -202,9 +200,12 @@ export default function HomeScreen() {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
+  const { t, i18n } = useTranslation();
+  const fonts = useAppFonts();
+  const styles = useMemo(() => createStyles(fonts), [fonts]);
 
   const [isJoining, setIsJoining] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('EN');
+  const selectedLanguageCode = getLanguageCode(i18n.language);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
   const [activeConnections, setActiveConnections] = useState<ActiveConnection[]>(
@@ -628,7 +629,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.meshCanvas, { width, height }]}>
+      <View style={[meshStyles.meshCanvas, { width, height }]}>
         {activeConnections.map(connection => (
           <DynamicConnectionLine
             key={connection.id}
@@ -641,7 +642,7 @@ export default function HomeScreen() {
 
         <Animated.View
           style={[
-            styles.pulseRing,
+            meshStyles.pulseRing,
             {
               left: originNode.x - PULSE_END_RADIUS,
               top: originNode.y - PULSE_END_RADIUS,
@@ -664,7 +665,7 @@ export default function HomeScreen() {
             <Animated.View
               key={`birth-ring-${node.id}`}
               style={[
-                styles.birthRing,
+                meshStyles.birthRing,
                 {
                   left: node.x - BIRTH_RING_END_RADIUS,
                   top: node.y - BIRTH_RING_END_RADIUS,
@@ -684,8 +685,8 @@ export default function HomeScreen() {
             <Animated.View
               key={node.id}
               style={[
-                styles.node,
-                node.isOrigin && styles.originNode,
+                meshStyles.node,
+                node.isOrigin && meshStyles.originNode,
                 {
                   left: node.x - nodeRadius,
                   top: node.y - nodeRadius,
@@ -704,7 +705,7 @@ export default function HomeScreen() {
         style={[styles.languageButton, { top: insets.top + 16 }]}
         onPress={() => setShowLanguage(true)}
         hitSlop={8}>
-        <Text style={styles.languageButtonLabel}>{selectedLanguage}</Text>
+        <Text style={styles.languageButtonLabel}>{selectedLanguageCode}</Text>
       </Pressable>
 
       <Pressable
@@ -728,14 +729,12 @@ export default function HomeScreen() {
           />
           <Text style={styles.wordmark}>OLNs</Text>
         </View>
-        <Text style={styles.subtitle}>OFFLINE NOTE NETWORK</Text>
-        <Text style={styles.tagline}>
-          peer-to-peer · mesh relay · no infrastructure
-        </Text>
+        <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
+        <Text style={styles.tagline}>{t('home.tagline')}</Text>
       </View>
 
       <View style={[styles.bottomSection, { bottom: insets.bottom + 48 }]}>
-        <Text style={styles.hint}>BLE · MESH · OFFLINE</Text>
+        <Text style={styles.hint}>{t('home.techHint')}</Text>
         <Animated.View style={{ opacity: buttonOpacity }}>
           <Pressable
             onPress={handleJoinMesh}
@@ -750,155 +749,30 @@ export default function HomeScreen() {
                   styles.joinLabel,
                   pressed && styles.joinLabelPressed,
                 ]}>
-                JOIN MESH
+                {t('home.joinMesh')}
               </Text>
             )}
           </Pressable>
         </Animated.View>
       </View>
 
-      <Modal
-        visible={showHowItWorks}
-        animationType="slide"
-        presentationStyle="fullScreen"
-        onRequestClose={() => setShowHowItWorks(false)}>
-        <SafeAreaView style={styles.howItWorksModalContainer}>
-          <View style={styles.howItWorksModalHeader}>
-            <Text style={styles.howItWorksModalHeaderTitle}>
-              HOW IT WORKS
-            </Text>
-            <Pressable
-              onPress={() => setShowHowItWorks(false)}
-              hitSlop={8}
-              style={styles.howItWorksModalCloseButton}>
-              <Text style={styles.howItWorksModalCloseLabel}>✕</Text>
-            </Pressable>
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.howItWorksScrollContent}
-            showsVerticalScrollIndicator={false}>
-            {HOW_IT_WORKS_STEPS.map((step, index) => (
-              <View key={step.number}>
-                {index > 0 && <View style={styles.stepDivider} />}
-                <View style={styles.stepRow}>
-                  <View
-                    style={[
-                      styles.stepAccentBar,
-                      { backgroundColor: step.color },
-                    ]}
-                  />
-                  <View style={styles.stepContent}>
-                    <Text
-                      style={[styles.stepNumber, { color: step.color }]}>
-                      {step.number}
-                    </Text>
-                    <Text style={styles.stepTitle}>{step.title}</Text>
-                    <Text style={styles.stepDescription}>
-                      {step.description}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-
-            <Text style={styles.modalFooter}>
-              OLNs works without WiFi, cellular, or any infrastructure. Pure
-              peer-to-peer mesh networking.
-            </Text>
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
-
-      <Modal
+      <LanguagePickerModal
         visible={showLanguage}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowLanguage(false)}>
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalHeaderTitle}>LANGUAGE</Text>
-            <Pressable
-              onPress={() => setShowLanguage(false)}
-              hitSlop={8}
-              style={styles.modalCloseButton}>
-              <Text style={styles.modalCloseLabel}>✕</Text>
-            </Pressable>
-          </View>
-
-          <ScrollView
-            contentContainerStyle={styles.modalScrollContent}
-            showsVerticalScrollIndicator={false}>
-            {LANGUAGES.map(language => {
-              const selected = selectedLanguage === language.code;
-
-              return (
-                <Pressable
-                  key={language.code}
-                  onPress={() => {
-                    setSelectedLanguage(language.code);
-                    setShowLanguage(false);
-                  }}
-                  style={styles.languageRow}>
-                  <Text style={styles.languageCode}>{language.code}</Text>
-                  <Text style={styles.languageName}>{language.label}</Text>
-                  {selected && <Text style={styles.languageCheck}>✓</Text>}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
+        onClose={() => setShowLanguage(false)}
+      />
+      <HowItWorksModal
+        visible={showHowItWorks}
+        onClose={() => setShowHowItWorks(false)}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+function createStyles(fonts: AppFontSet) {
+  return StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  meshCanvas: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-  },
-  connectionLine: {
-    position: 'absolute',
-    height: 0.5,
-    backgroundColor: colors.accent,
-  },
-  pulseRing: {
-    position: 'absolute',
-    width: PULSE_END_RADIUS * 2,
-    height: PULSE_END_RADIUS * 2,
-    borderRadius: PULSE_END_RADIUS,
-    borderWidth: 1,
-    borderColor: colors.hopIndicator,
-    backgroundColor: 'transparent',
-  },
-  birthRing: {
-    position: 'absolute',
-    width: BIRTH_RING_END_RADIUS * 2,
-    height: BIRTH_RING_END_RADIUS * 2,
-    borderRadius: BIRTH_RING_END_RADIUS,
-    borderWidth: 0.8,
-    borderColor: colors.accent,
-    backgroundColor: 'transparent',
-  },
-  packet: {
-    position: 'absolute',
-    width: PACKET_DIAMETER,
-    height: PACKET_DIAMETER,
-    borderRadius: PACKET_RADIUS,
-    backgroundColor: colors.accent,
-  },
-  node: {
-    position: 'absolute',
-    backgroundColor: colors.accent,
-  },
-  originNode: {
-    backgroundColor: colors.hopIndicator,
   },
   languageButton: {
     position: 'absolute',
@@ -912,6 +786,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     letterSpacing: 2,
+    textTransform: 'uppercase',
   },
   helpButton: {
     position: 'absolute',
@@ -956,6 +831,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   tagline: {
     marginTop: 8,
@@ -979,6 +855,7 @@ const styles = StyleSheet.create({
     color: colors.textMeta,
     letterSpacing: 3,
     marginBottom: 12,
+    textTransform: 'uppercase',
   },
   joinButton: {
     borderWidth: 1,
@@ -996,143 +873,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.accent,
     letterSpacing: 4,
+    textTransform: 'uppercase',
   },
   joinLabelPressed: {
     color: colors.background,
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  howItWorksModalContainer: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  howItWorksModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 0,
-    marginBottom: 28,
-    backgroundColor: colors.surface,
-  },
-  howItWorksModalHeaderTitle: {
-    flex: 1,
-    fontFamily: fonts.display,
-    fontSize: 16,
-    color: colors.accent,
-    letterSpacing: 3,
-  },
-  howItWorksModalCloseButton: {
-    padding: 12,
-  },
-  howItWorksModalCloseLabel: {
-    fontFamily: fonts.regular,
-    fontSize: 20,
-    color: colors.textSecondary,
-  },
-  howItWorksScrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 16,
-  },
-  modalHeaderTitle: {
-    fontFamily: fonts.bold,
-    fontSize: 14,
-    color: colors.accent,
-    letterSpacing: 2,
-  },
-  modalCloseButton: {
-    padding: 8,
-  },
-  modalCloseLabel: {
-    fontFamily: fonts.regular,
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  modalScrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 32,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  },
-  stepAccentBar: {
-    width: 3,
-    borderRadius: 2,
-    marginRight: 16,
-  },
-  stepContent: {
-    flex: 1,
-  },
-  stepDivider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 28,
-  },
-  stepNumber: {
-    fontFamily: fonts.bold,
-    fontSize: 11,
-    letterSpacing: 3,
-    marginBottom: 6,
-  },
-  stepTitle: {
-    fontFamily: fonts.bold,
-    fontSize: 20,
-    color: colors.textPrimary,
-    letterSpacing: 1,
-    marginBottom: 10,
-  },
-  stepDescription: {
-    fontFamily: fonts.regular,
-    fontSize: 15,
-    lineHeight: 24,
-    letterSpacing: 0.3,
-    color: colors.textSecondary,
-  },
-  modalFooter: {
-    fontFamily: fonts.regular,
-    fontSize: 13,
-    color: colors.textMeta,
-    textAlign: 'center',
-    lineHeight: 20,
-    letterSpacing: 0.5,
-    paddingHorizontal: 24,
-    marginTop: 32,
-  },
-  languageRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  languageCode: {
-    width: 40,
-    fontFamily: fonts.bold,
-    fontSize: 12,
-    color: colors.accent,
-    letterSpacing: 1,
-  },
-  languageName: {
-    flex: 1,
-    fontFamily: fonts.regular,
-    fontSize: 14,
-    color: colors.textPrimary,
-  },
-  languageCheck: {
-    fontFamily: fonts.bold,
-    fontSize: 14,
-    color: colors.hopIndicator,
-  },
-});
+  });
+}

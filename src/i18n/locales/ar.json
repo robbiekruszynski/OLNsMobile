@@ -1,0 +1,102 @@
+{
+  "home": {
+    "subtitle": "شبكة الملاحظات دون اتصال",
+    "tagline": "نظير إلى نظير · ترحيل شبكي · بلا بنية تحتية",
+    "techHint": "BLE · شبكة · دون اتصال",
+    "joinMesh": "انضم للشبكة",
+    "howItWorks": "كيف يعمل",
+    "language": "اللغة",
+    "restartingLanguage": "إعادة التشغيل لتطبيق اللغة",
+    "howItWorksFooter": "OLNs يعمل بدون WiFi أو شبكة جوّالة أو أي بنية تحتية. شبكة نظير إلى نظير خالصة.",
+    "steps": {
+      "broadcast": {
+        "title": "بث",
+        "description": "اكتب ملاحظة وبثّها على الشبكة. لا حاجة للإنترنت — رسالتك تنتقل عبر Bluetooth."
+      },
+      "propagate": {
+        "title": "انتشار",
+        "description": "الأجهزة القريبة تلتقط ملاحظتك تلقائياً وتُرحّلها، فتصل أبعد مع كل قفزة."
+      },
+      "persist": {
+        "title": "استمرار",
+        "description": "الملاحظات تعيش على الشبكة باستقلال. حتى بعد مغادرتك، تستمر رسالتك عبر أجهزة المنطقة."
+      },
+      "discover": {
+        "title": "اكتشاف",
+        "description": "افتح التغذية لرؤية ملاحظات الشبكة حولك، من أشخاص قريبين أو رسائل مرّت بأيدٍ كثيرة لتصلك."
+      },
+      "encrypt": {
+        "title": "تشفير",
+        "description": "أضف كلمة مرور أثناء الكتابة لقفل الملاحظة. يُشفَّر العنوان والنص على الجهاز قبل البث — يرى النظير بطاقة مقفلة حتى يُدخلها. لا استرداد، شارك كلمة المرور بشكل منفصل."
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "طوارئ",
+    "resource": "مورد",
+    "information": "معلومات",
+    "waypoint": "نقطة طريق"
+  },
+  "compose": {
+    "title": "إنشاء",
+    "transmissionTitle": "عنوان الإرسال",
+    "bodyPlaceholder": "اكتب إرسالك...",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "encryptToggle": "شفّر هذه الملاحظة بكلمة مرور",
+    "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+    "broadcastFailed": "فشل البث",
+    "broadcast": "بث",
+    "encrypting": "جارٍ التشفير...",
+    "transmitting": "جارٍ الإرسال...",
+    "done": "تم",
+    "transmitted": "تم الإرسال"
+  },
+  "feed": {
+    "all": "الكل",
+    "meshOffline": "الشبكة غير متصلة",
+    "meshActive": "الشبكة نشطة",
+    "meshError": "خطأ الشبكة",
+    "initializing": "جارٍ التهيئة...",
+    "encrypted": "مشفّر",
+    "meshListening": "الشبكة تستمع",
+    "noTransmissions": "لا إرسالات",
+    "noFilterTransmissions": "لا إرسالات {{filter}}",
+    "listening": "يستمع",
+    "scanning": "جارٍ المسح...",
+    "noteCount_zero": "لا ملاحظات",
+    "noteCount_one": "ملاحظة واحدة",
+    "noteCount_two": "ملاحظتان",
+    "noteCount_few": "{{count}} ملاحظات",
+    "noteCount_many": "{{count}} ملاحظة",
+    "noteCount_other": "{{count}} ملاحظة",
+    "peers": "{{count}} نظير"
+  },
+  "noteCard": {
+    "origin": "المصدر",
+    "type": "النوع",
+    "broadcast": "البث",
+    "hops": "القفزات",
+    "status": "الحالة",
+    "signalLost": "فقدان الإشارة",
+    "signalActive": "الإشارة نشطة",
+    "encryptedMessage": "رسالة مشفّرة",
+    "tapToUnlock": "اضغط للفتح",
+    "transmissionDetail": "تفاصيل الإرسال",
+    "detailFooter": "مجهول · ترحيل شبكي · بلا بنية تحتية",
+    "unlockTransmission": "فتح الإرسال",
+    "enterPassword": "أدخل كلمة المرور",
+    "incorrectPassword": "كلمة مرور خاطئة",
+    "cancel": "إلغاء",
+    "decrypting": "جارٍ فك التشفير...",
+    "unlock": "فتح",
+    "fromAuthor": "من {{id}}",
+    "you": "(أنت)",
+    "hopOne": "قفزة 1",
+    "hopCount": "قفزة {{count}}",
+    "hopCountWarning": "قفزة {{count}} ⚠",
+    "hopsDirect": "مباشر — بلا ترحيل",
+    "hopsOneRelay": "ترحيل واحد",
+    "hopsManyRelays": "{{count}} ترحيلات"
+  }
+}

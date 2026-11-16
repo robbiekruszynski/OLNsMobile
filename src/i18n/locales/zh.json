@@ -1,0 +1,97 @@
+{
+  "home": {
+    "subtitle": "离线笔记网络",
+    "tagline": "点对点 · 网状中继 · 无基础设施",
+    "techHint": "BLE · 网状 · 离线",
+    "joinMesh": "加入网状网络",
+    "howItWorks": "工作原理",
+    "language": "语言",
+    "restartingLanguage": "正在重启以应用语言",
+    "howItWorksFooter": "OLNs 无需 WiFi、蜂窝网络或任何基础设施。纯点对点网状网络。",
+    "steps": {
+      "broadcast": {
+        "title": "广播",
+        "description": "撰写笔记并广播至网状网络。无需互联网——消息通过蓝牙传输。"
+      },
+      "propagate": {
+        "title": "传播",
+        "description": "附近设备自动接收并转发你的笔记，每一跳都将消息传得更远。"
+      },
+      "persist": {
+        "title": "持久",
+        "description": "笔记独立存活在网络中。即使你离开，消息仍会继续在区域内设备间流转。"
+      },
+      "discover": {
+        "title": "发现",
+        "description": "打开信息流，查看周围网状网络、附近人员或经多手传递抵达你的消息。"
+      },
+      "encrypt": {
+        "title": "加密",
+        "description": "撰写时设置密码以锁定笔记。标题与正文在广播前于设备端加密——节点看到锁定卡片直至输入密码。无法恢复，请另行分享密码。"
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "紧急",
+    "resource": "资源",
+    "information": "情报",
+    "waypoint": "路标"
+  },
+  "compose": {
+    "title": "撰写",
+    "transmissionTitle": "传输标题",
+    "bodyPlaceholder": "撰写你的传输内容...",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "encryptToggle": "使用密码加密此笔记",
+    "passwordsDoNotMatch": "密码不匹配",
+    "broadcastFailed": "广播失败",
+    "broadcast": "广播",
+    "encrypting": "加密中...",
+    "transmitting": "传输中...",
+    "done": "完成",
+    "transmitted": "已传输"
+  },
+  "feed": {
+    "all": "全部",
+    "meshOffline": "网状离线",
+    "meshActive": "网状活跃",
+    "meshError": "网状错误",
+    "initializing": "初始化中...",
+    "encrypted": "已加密",
+    "meshListening": "网状网络监听中",
+    "noTransmissions": "无传输",
+    "noFilterTransmissions": "无 {{filter}} 传输",
+    "listening": "监听中",
+    "scanning": "扫描中...",
+    "noteCount_other": "{{count}} 条笔记",
+    "peers": "{{count}} 节点"
+  },
+  "noteCard": {
+    "origin": "源点",
+    "type": "类型",
+    "broadcast": "广播",
+    "hops": "跳数",
+    "status": "状态",
+    "signalLost": "信号丢失",
+    "signalActive": "信号活跃",
+    "encryptedMessage": "加密消息",
+    "tapToUnlock": "点击解锁",
+    "transmissionDetail": "传输详情",
+    "detailFooter": "匿名 · 网状中继 · 无基础设施",
+    "unlockTransmission": "解锁传输",
+    "enterPassword": "输入密码",
+    "incorrectPassword": "密码错误",
+    "cancel": "取消",
+    "decrypting": "解密中...",
+    "unlock": "解锁",
+    "fromAuthor": "来自 {{id}}",
+    "you": "（你）",
+    "hopOne": "跳 1",
+    "hopCount": "跳 {{count}}",
+    "hopCountWarning": "跳 {{count}} ⚠",
+    "hopsDirect": "直连 — 无中继",
+    "hopsOneRelay": "1 次中继",
+    "hopsManyRelays": "{{count}} 次中继"
+  }
+}

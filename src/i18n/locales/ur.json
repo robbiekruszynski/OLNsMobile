@@ -1,0 +1,98 @@
+{
+  "home": {
+    "subtitle": "آف لائن نوٹ نیٹ ورک",
+    "tagline": "پیئر ٹو پیئر · میش ریلے · کوئی انفراسٹرکچر نہیں",
+    "techHint": "BLE · میش · آف لائن",
+    "joinMesh": "میش میں شامل ہوں",
+    "howItWorks": "یہ کیسے کام کرتا ہے",
+    "language": "زبان",
+    "restartingLanguage": "زبان لاگو کرنے کے لیے دوبارہ شروع ہو رہا ہے",
+    "howItWorksFooter": "OLNs بغیر WiFi، موبائل ڈیٹا یا کسی انفراسٹرکچر کے چلتا ہے۔ خالص پیئر ٹو پیئر میش نیٹ ورک۔",
+    "steps": {
+      "broadcast": {
+        "title": "نشریہ",
+        "description": "نوٹ لکھیں اور میش پر نشر کریں۔ انٹرنیٹ نہیں چاہیے — آپ کا پیغام Bluetooth سے سفر کرتا ہے۔"
+      },
+      "propagate": {
+        "title": "پھیلاؤ",
+        "description": "قریبی آلات خودکار طور پر آپ کا نوٹ اٹھاتے اور آگے بھیجتے ہیں، ہر ہاپ پر مزید دور لے جاتے ہیں۔"
+      },
+      "persist": {
+        "title": "برقرار",
+        "description": "نوٹس نیٹ ورک پر آزادانہ رہتے ہیں۔ آپ کے جانے کے بعد بھی، پیغام علاقے کے آلات سے گزرتا رہتا ہے۔"
+      },
+      "discover": {
+        "title": "دریافت",
+        "description": "فیڈ کھولیں اور اردگرد کے میش، قریبی لوگوں یا کئی ہاتھوں سے آپ تک پہنچے پیغامات دیکھیں۔"
+      },
+      "encrypt": {
+        "title": "خفیہ کاری",
+        "description": "لکھتے وقت پاس ورڈ سے نوٹ لاک کریں۔ نشریہ سے پہلے عنوان اور متن آلے پر خفیہ ہوتے ہیں — پاس ورڈ دینے تک پیئرز کو لاک کارڈ نظر آتا ہے۔ بازیابی نہیں، پاس ورڈ الگ سے شیئر کریں۔"
+      }
+    }
+  },
+  "noteType": {
+    "emergency": "ایمرجنسی",
+    "resource": "وسیلہ",
+    "information": "معلومات",
+    "waypoint": "راستہ نشان"
+  },
+  "compose": {
+    "title": "تحریر",
+    "transmissionTitle": "نشریہ عنوان",
+    "bodyPlaceholder": "اپنا نشریہ لکھیں...",
+    "password": "پاس ورڈ",
+    "confirmPassword": "پاس ورڈ کی تصدیق",
+    "encryptToggle": "اس نوٹ کو پاس ورڈ سے خفیہ کریں",
+    "passwordsDoNotMatch": "پاس ورڈ میل نہیں کھاتے",
+    "broadcastFailed": "نشریہ ناکام",
+    "broadcast": "نشر کریں",
+    "encrypting": "خفیہ کیا جا رہا ہے...",
+    "transmitting": "نشر ہو رہا ہے...",
+    "done": "مکمل",
+    "transmitted": "نشر شدہ"
+  },
+  "feed": {
+    "all": "سب",
+    "meshOffline": "میش آف لائن",
+    "meshActive": "میش فعال",
+    "meshError": "میش خرابی",
+    "initializing": "شروع ہو رہا ہے...",
+    "encrypted": "خفیہ شدہ",
+    "meshListening": "میش سن رہا ہے",
+    "noTransmissions": "کوئی نشریات نہیں",
+    "noFilterTransmissions": "کوئی {{filter}} نشریات نہیں",
+    "listening": "سن رہا ہے",
+    "scanning": "اسکین ہو رہا ہے...",
+    "noteCount_one": "{{count}} نوٹ",
+    "noteCount_other": "{{count}} نوٹ",
+    "peers": "{{count}} پیئر"
+  },
+  "noteCard": {
+    "origin": "ماخذ",
+    "type": "قسم",
+    "broadcast": "نشریہ",
+    "hops": "ہاپ",
+    "status": "حالت",
+    "signalLost": "سگنل کھو گیا",
+    "signalActive": "سگنل فعال",
+    "encryptedMessage": "خفیہ پیغام",
+    "tapToUnlock": "ان لاک کے لیے ٹیپ کریں",
+    "transmissionDetail": "نشریہ تفصیل",
+    "detailFooter": "گمنام · میش ریلے · کوئی انفراسٹرکچر نہیں",
+    "unlockTransmission": "نشریہ ان لاک کریں",
+    "enterPassword": "پاس ورڈ درج کریں",
+    "incorrectPassword": "غلط پاس ورڈ",
+    "cancel": "منسوخ",
+    "decrypting": "ڈکرپٹ ہو رہا ہے...",
+    "unlock": "ان لاک",
+    "fromAuthor": "{{id}} سے",
+    "you": "(آپ)",
+    "hopOne": "ہاپ 1",
+    "hopCount": "ہاپ {{count}}",
+    "hopCountWarning": "ہاپ {{count}} ⚠",
+    "hopsDirect": "براہ راست — کوئی ریلے نہیں",
+    "hopsOneRelay": "1 ریلے",
+    "hopsManyRelays": "{{count}} ریلے"
+  }
+}
